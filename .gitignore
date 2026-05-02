@@ -18,6 +18,8 @@ frontend/.next/
 frontend/out/
 frontend/build/
 public/build/
+backend/bootstrap/cache/*.php
+backend/public/storage
 storage/*.key
 backend/storage/*.key
 backend/storage/app/public/*
