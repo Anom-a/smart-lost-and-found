@@ -119,3 +119,143 @@ Seeded item categories:
 - Accessories
 - Sports Equipment
 - Other
+
+## Core REST API
+
+All protected endpoints require:
+
+```http
+Authorization: Bearer <token>
+```
+
+### Categories
+
+`GET /api/categories`
+
+Returns all item categories.
+
+### Lost Items
+
+Public:
+
+- `GET /api/lost-items`
+- `GET /api/lost-items/{lostItem}`
+
+Protected:
+
+- `POST /api/lost-items`
+- `PUT/PATCH /api/lost-items/{lostItem}`
+- `DELETE /api/lost-items/{lostItem}`
+
+Supported list filters:
+
+- `search`
+- `category_id`
+- `date_from`
+- `date_to`
+- `status`
+- `page`
+- `per_page`
+
+Create/update fields:
+
+- `item_category_id`
+- `title`
+- `description`
+- `keywords[]`
+- `lost_location`
+- `lost_at`
+- `contact_preference`
+- `status`
+- `images[]`
+
+Images are uploaded to the `public` disk under `lost-items/`, which maps to `storage/app/public/lost-items`.
+
+Only the owner can update or delete a lost item.
+
+### Found Items
+
+Public:
+
+- `GET /api/found-items`
+- `GET /api/found-items/{foundItem}`
+
+Protected:
+
+- `POST /api/found-items`
+- `PUT/PATCH /api/found-items/{foundItem}`
+- `DELETE /api/found-items/{foundItem}`
+
+Supported list filters:
+
+- `search`
+- `category_id`
+- `date_from`
+- `date_to`
+- `status`
+- `page`
+- `per_page`
+
+Create/update fields:
+
+- `item_category_id`
+- `title`
+- `description`
+- `keywords[]`
+- `found_location`
+- `found_at`
+- `handover_location`
+- `status`
+- `images[]`
+
+Images are uploaded to the `public` disk under `found-items/`, which maps to `storage/app/public/found-items`.
+
+Only the owner can update or delete a found item.
+
+### Claims
+
+Protected:
+
+- `GET /api/claims`
+- `POST /api/claims`
+- `GET /api/claims/{claim}`
+- `POST /api/claims/{claim}/approve`
+- `POST /api/claims/{claim}/reject`
+
+Create fields:
+
+- `lost_item_id`
+- `found_item_id`
+- `message`
+- `proof_details`
+
+Duplicate claims by the same student for the same lost/found pair return `409`.
+
+Approving a claim sets:
+
+- `claim_requests.status` to `approved`
+- `lost_items.status` to `claimed`
+- `found_items.status` to `claimed`
+
+Rejecting a claim sets `claim_requests.status` to `rejected`.
+
+### Matches
+
+`GET /api/matches`
+
+Query with either:
+
+- `lost_item_id`
+- `found_item_id`
+
+The endpoint returns same-category candidate matches.
+
+### Notifications
+
+Protected:
+
+- `GET /api/notifications`
+- `POST /api/notifications/{notification}/mark-read`
+- `POST /api/notifications/mark-all-read`
+
+Users may only read or update their own notifications.

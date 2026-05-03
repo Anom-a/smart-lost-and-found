@@ -13,6 +13,11 @@ class StoreClaimRequest extends FormRequest
 
     public function rules(): array
     {
-        return [];
+        return [
+            'lost_item_id' => ['required', 'integer', 'exists:lost_items,id'],
+            'found_item_id' => ['required', 'integer', 'exists:found_items,id'],
+            'message' => ['nullable', 'string', 'max:2000'],
+            'proof_details' => ['nullable', 'array'],
+        ];
     }
 }

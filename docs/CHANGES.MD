@@ -10,6 +10,10 @@
 - Added Sanctum token authentication endpoints for registration, login, logout, and authenticated profile lookup.
 - Added student profile fields to users: `student_id`, `phone`, and `profile_photo_path`.
 - Added feature tests for category seeding and authentication flows.
+- Added REST endpoints for categories, lost items, found items, claims, matches, and notifications.
+- Added image upload handling for lost and found items on the `public` disk.
+- Added owner checks for item updates and deletes.
+- Added feature tests for lost items, found items, claims, uploads, and protected-route authentication.
 
 Verified with:
 
@@ -17,4 +21,5 @@ Verified with:
 docker compose run --rm backend php artisan migrate:fresh --seed -vvv
 docker compose run --rm backend php artisan test
 docker compose run --rm backend php artisan route:list --path=api/auth
+docker compose run --rm backend php artisan route:list --path=api
 ```

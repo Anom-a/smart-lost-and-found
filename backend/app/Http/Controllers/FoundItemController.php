@@ -2,6 +2,93 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreFoundItemRequest;
+use App\Http\Resources\FoundItemResource;
+use App\Models\FoundItem;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
 class FoundItemController extends Controller
 {
+    public function index(Request $request): JsonResponse
+    {
+        $items = FoundItem::query()
+            ->with(['user', 'category'])
+            ->when($request->filled('search'), function ($query) use ($request): void {
+                $search = '%'.$request->string('search')->toString().'%';
+                $query->where(function ($query) use ($search): void {
+                    $query->where('title', 'like', $search)
+                        ->orWhere('description', 'like', $search);
+                });
+            })
+            ->when($request->filled('category_id'), fn ($query) => $query->where('item_category_id', $request->integer('category_id')))
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
+            ->when($request->filled('date_from'), fn ($query) => $query->whereDate('found_at', '>=', $request->date('date_from')))
+            ->when($request->filled('date_to'), fn ($query) => $query->whereDate('found_at', '<=', $request->date('date_to')))
+            ->latest()
+            ->paginate(min($request->integer('per_page', 15), 50));
+
+        return $this->successResponse('Found items retrieved.', FoundItemResource::collection($items), 200, [
+            'current_page' => $items->currentPage(),
+            'per_page' => $items->perPage(),
+            'total' => $items->total(),
+            'last_page' => $items->lastPage(),
+        ]);
+    }
+
+    public function store(StoreFoundItemRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+        $data['user_id'] = $request->user()->id;
+        $data['images'] = $this->storeImages($request, 'found-items');
+        $data['status'] = $data['status'] ?? 'available';
+
+        $item = FoundItem::create($data)->load(['user', 'category']);
+
+        return $this->successResponse('Found item created.', new FoundItemResource($item), 201);
+    }
+
+    public function show(FoundItem $foundItem): JsonResponse
+    {
+        return $this->successResponse('Found item retrieved.', new FoundItemResource($foundItem->load(['user', 'category'])));
+    }
+
+    public function update(StoreFoundItemRequest $request, FoundItem $foundItem): JsonResponse
+    {
+        if ($request->user()->id !== $foundItem->user_id) {
+            return $this->errorResponse('You may only update your own found items.', 403);
+        }
+
+        $data = $request->validated();
+
+        if ($request->hasFile('images')) {
+            $data['images'] = $this->storeImages($request, 'found-items');
+        }
+
+        $foundItem->update($data);
+
+        return $this->successResponse('Found item updated.', new FoundItemResource($foundItem->fresh(['user', 'category'])));
+    }
+
+    public function destroy(Request $request, FoundItem $foundItem): JsonResponse
+    {
+        if ($request->user()->id !== $foundItem->user_id) {
+            return $this->errorResponse('You may only delete your own found items.', 403);
+        }
+
+        $foundItem->delete();
+
+        return $this->successResponse('Found item deleted.');
+    }
+
+    private function storeImages(Request $request, string $directory): array
+    {
+        if (! $request->hasFile('images')) {
+            return [];
+        }
+
+        return collect($request->file('images'))
+            ->map(fn ($image) => $image->store($directory, 'public'))
+            ->all();
+    }
 }
