@@ -17,7 +17,9 @@
         "spatie/laravel-query-builder": "^5.0"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^2.15"
+        "barryvdh/laravel-ide-helper": "^2.15",
+        "mockery/mockery": "^1.6",
+        "phpunit/phpunit": "^10.5"
     },
     "autoload": {
         "psr-4": {
