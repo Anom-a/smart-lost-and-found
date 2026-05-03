@@ -17,6 +17,9 @@
 - Added an intelligent matching service for lost-item to found-item suggestions.
 - Added `GET /api/lost-items/{lostItem}/matches`.
 - Added matching tests for category, keyword Jaccard similarity, date decay, location partial matches, threshold filtering, and score sorting.
+- Added the core React frontend routes, protected layout, auth pages, item browsing/reporting pages, detail pages, matches, claims, and notifications.
+- Added reusable frontend components for item cards, report forms, match cards, notification access, navigation, empty states, and app layout.
+- Added Vitest and Testing Library coverage for item cards, report form validation, auth pages, match cards, and protected routes.
 
 Verified with:
 
@@ -25,4 +28,7 @@ docker compose run --rm backend php artisan migrate:fresh --seed -vvv
 docker compose run --rm backend php artisan test
 docker compose run --rm backend php artisan route:list --path=api/auth
 docker compose run --rm backend php artisan route:list --path=api
+cd frontend
+npm run test
+npm run build
 ```
