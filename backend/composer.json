@@ -9,15 +9,15 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
-        "laravel/framework": "^11.0",
-        "laravel/sanctum": "^4.0",
+        "php": "^8.1",
+        "laravel/framework": "^10.0",
+        "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.9",
         "intervention/image": "^3.11",
-        "spatie/laravel-query-builder": "^6.0"
+        "spatie/laravel-query-builder": "^5.0"
     },
     "require-dev": {
-        "barryvdh/laravel-ide-helper": "^3.1"
+        "barryvdh/laravel-ide-helper": "^2.15"
     },
     "autoload": {
         "psr-4": {

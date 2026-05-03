@@ -1,17 +1,34 @@
+version: "3.9"
+
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: smart-lost-and-found-mysql
+  backend:
+    build:
+      context: ./backend
+    working_dir: /var/www/html
+    volumes:
+      - ./backend:/var/www/html
+    depends_on:
+      - db
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: smart_lost_and_found
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+
+  db:
+    image: postgres:16
+    container_name: smart-lost-and-found-db
     restart: unless-stopped
     environment:
-      MYSQL_DATABASE: smart_lost_and_found
-      MYSQL_USER: smart_user
-      MYSQL_PASSWORD: smart_password
-      MYSQL_ROOT_PASSWORD: root_password
+      POSTGRES_DB: smart_lost_and_found
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
     ports:
-      - "3307:3306"
+      - "55432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - db_data:/var/lib/postgresql/data
 
 volumes:
-  mysql_data:
+  db_data:
