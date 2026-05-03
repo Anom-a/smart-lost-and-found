@@ -23,6 +23,7 @@ Route::prefix('auth')->group(function (): void {
 
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/lost-items', [LostItemController::class, 'index']);
+Route::get('/lost-items/{lostItem}/matches', [MatchController::class, 'forLostItem']);
 Route::get('/lost-items/{lostItem}', [LostItemController::class, 'show']);
 Route::get('/found-items', [FoundItemController::class, 'index']);
 Route::get('/found-items/{foundItem}', [FoundItemController::class, 'show']);

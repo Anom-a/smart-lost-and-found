@@ -14,6 +14,9 @@
 - Added image upload handling for lost and found items on the `public` disk.
 - Added owner checks for item updates and deletes.
 - Added feature tests for lost items, found items, claims, uploads, and protected-route authentication.
+- Added an intelligent matching service for lost-item to found-item suggestions.
+- Added `GET /api/lost-items/{lostItem}/matches`.
+- Added matching tests for category, keyword Jaccard similarity, date decay, location partial matches, threshold filtering, and score sorting.
 
 Verified with:
 

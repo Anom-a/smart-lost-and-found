@@ -6,11 +6,19 @@ use App\Http\Resources\FoundItemResource;
 use App\Http\Resources\LostItemResource;
 use App\Models\FoundItem;
 use App\Models\LostItem;
+use App\Services\MatchingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MatchController extends Controller
 {
+    public function forLostItem(LostItem $lostItem, MatchingService $matchingService): JsonResponse
+    {
+        $matches = $matchingService->findMatchesForLostItem($lostItem);
+
+        return $this->successResponse('Found item matches retrieved.', FoundItemResource::collection($matches));
+    }
+
     public function index(Request $request): JsonResponse
     {
         $request->validate([
@@ -20,13 +28,7 @@ class MatchController extends Controller
 
         if ($request->filled('lost_item_id')) {
             $lostItem = LostItem::findOrFail($request->integer('lost_item_id'));
-            $matches = FoundItem::query()
-                ->with(['user', 'category'])
-                ->where('item_category_id', $lostItem->item_category_id)
-                ->where('status', 'available')
-                ->latest()
-                ->limit(10)
-                ->get();
+            $matches = app(MatchingService::class)->findMatchesForLostItem($lostItem);
 
             return $this->successResponse('Found item matches retrieved.', FoundItemResource::collection($matches));
         }

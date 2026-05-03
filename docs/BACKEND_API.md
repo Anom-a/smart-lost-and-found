@@ -250,6 +250,30 @@ Query with either:
 
 The endpoint returns same-category candidate matches.
 
+`GET /api/lost-items/{lostItem}/matches`
+
+Returns scored found-item matches for a reported lost item.
+
+The matching engine uses these weighted signals:
+
+- Category match: `0.40`
+- Keyword overlap: `0.35`
+- Date proximity: `0.15`
+- Location match: `0.10`
+
+The default threshold is `0.40`. Results below the threshold are excluded.
+
+Scoring details:
+
+- Category score is `1.0` when categories match, otherwise `0.0`.
+- Keyword score uses Jaccard similarity over the `keywords` arrays.
+- Date score uses exponential decay: `e^(-days_diff / 7)`.
+- Location score uses partial normalized string comparison.
+
+Only found items with `status = available` are returned. Claimed or closed found items are excluded.
+
+Lost and found items automatically extract keywords from title and description when no keywords are provided.
+
 ### Notifications
 
 Protected:

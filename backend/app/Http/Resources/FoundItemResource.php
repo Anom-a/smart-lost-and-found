@@ -21,6 +21,8 @@ class FoundItemResource extends JsonResource
             'handover_location' => $this->handover_location,
             'images' => $this->images ?? [],
             'status' => $this->status,
+            'match_score' => $this->when($this->match_score !== null, $this->match_score),
+            'match_breakdown' => $this->when($this->match_breakdown !== null, $this->match_breakdown),
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),
             'user' => new UserResource($this->whenLoaded('user')),
