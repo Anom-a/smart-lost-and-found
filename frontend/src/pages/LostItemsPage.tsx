@@ -1,10 +1,19 @@
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { EmptyState } from '../components/EmptyState'
+import { ErrorState } from '../components/ErrorState'
 import { ItemCard } from '../components/ItemCard'
-import { items } from '../lib/mockData'
+import { LoadingState } from '../components/LoadingState'
+import { fetchLostItems } from '../lib/apiData'
 
 export function LostItemsPage() {
-  const lostItems = items.filter((item) => item.type === 'lost')
+  const { data: lostItems = [], isLoading, isError } = useQuery({
+    queryKey: ['lost-items'],
+    queryFn: fetchLostItems,
+  })
+
+  if (isLoading) return <LoadingState message="Loading lost item reports..." />
+  if (isError) return <ErrorState description="Unable to load lost item reports from the API." />
 
   return (
     <section className="space-y-6">

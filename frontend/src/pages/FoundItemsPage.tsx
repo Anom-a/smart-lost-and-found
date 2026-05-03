@@ -1,10 +1,19 @@
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { EmptyState } from '../components/EmptyState'
+import { ErrorState } from '../components/ErrorState'
 import { ItemCard } from '../components/ItemCard'
-import { items } from '../lib/mockData'
+import { LoadingState } from '../components/LoadingState'
+import { fetchFoundItems } from '../lib/apiData'
 
 export function FoundItemsPage() {
-  const foundItems = items.filter((item) => item.type === 'found')
+  const { data: foundItems = [], isLoading, isError } = useQuery({
+    queryKey: ['found-items'],
+    queryFn: fetchFoundItems,
+  })
+
+  if (isLoading) return <LoadingState message="Loading found item reports..." />
+  if (isError) return <ErrorState description="Unable to load found item reports from the API." />
 
   return (
     <section className="space-y-6">

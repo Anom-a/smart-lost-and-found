@@ -7,6 +7,7 @@ export function RegisterPage() {
   const navigate = useNavigate()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
+  const [studentId, setStudentId] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
 
@@ -15,7 +16,7 @@ export function RegisterPage() {
     setError('')
 
     try {
-      await register({ name, email, password })
+      await register({ name, email, studentId, password })
       navigate('/dashboard')
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : 'Unable to register')
@@ -36,6 +37,10 @@ export function RegisterPage() {
         <div>
           <label className="text-sm font-medium text-slate-700" htmlFor="email">Email</label>
           <input id="email" className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3" value={email} onChange={(event) => setEmail(event.target.value)} />
+        </div>
+        <div>
+          <label className="text-sm font-medium text-slate-700" htmlFor="studentId">Student ID</label>
+          <input id="studentId" className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3" value={studentId} onChange={(event) => setStudentId(event.target.value)} />
         </div>
         <div>
           <label className="text-sm font-medium text-slate-700" htmlFor="password">Password</label>

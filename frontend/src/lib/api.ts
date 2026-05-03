@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 import toast from 'react-hot-toast'
 
-export const API_URL = import.meta.env.VITE_API_URL ?? '/api'
+export const API_URL = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_BASE_URL ?? '/api'
 export const STORAGE_URL = import.meta.env.VITE_STORAGE_URL ?? '/storage'
 
 export const api = axios.create({
@@ -41,4 +41,17 @@ export type ApiResponse<T> = {
   success: boolean
   message: string
   data: T
+}
+
+type ValidationErrors = Record<string, string[]>
+
+export function getApiErrorMessage(error: unknown, fallback = 'Request failed') {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { message?: string; errors?: ValidationErrors } | undefined
+    const firstValidationMessage = data?.errors ? Object.values(data.errors).flat()[0] : undefined
+
+    return firstValidationMessage ?? data?.message ?? fallback
+  }
+
+  return error instanceof Error ? error.message : fallback
 }

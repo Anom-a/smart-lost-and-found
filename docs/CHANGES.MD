@@ -1,5 +1,24 @@
 # Changes
 
+## 2026-05-03 frontend API integration
+
+- Removed the runtime frontend mock data module and replaced item, match, claim, notification, auth, and report flows with real Axios requests to the Laravel API.
+- Added a frontend response-mapping layer in `frontend/src/lib/apiData.ts` so Laravel snake-case resources are normalized for existing React components.
+- Wired login and registration to Sanctum token responses, including the backend-required student ID and password confirmation fields.
+- Wired lost/found report creation to `POST /api/lost-items` and `POST /api/found-items`, using backend category IDs from `GET /api/categories`.
+- Updated frontend tests to use local fixtures or mocked API calls instead of importing runtime mock data.
+
+Verified with:
+
+```bash
+cd frontend
+npm run build
+npm test -- --run
+docker compose run --rm backend php artisan test
+```
+
+Note: running `php artisan test` directly on the host currently fails before app logic because the host PHP installation has `pdo_pgsql` but not `pdo_sqlite`; the Docker command above passed against the compose Postgres service.
+
 ## Backend database and authentication
 
 - Added the Smart Lost and Found database schema for item categories, lost items, found items, claim requests, and notifications.

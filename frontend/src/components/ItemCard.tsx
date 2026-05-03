@@ -4,9 +4,9 @@ import type { Item } from '../types/models'
 
 const statusStyles: Record<Item['status'], string> = {
   open: 'bg-blue-100 text-blue-700',
-  matched: 'bg-amber-100 text-amber-700',
+  available: 'bg-amber-100 text-amber-700',
   claimed: 'bg-purple-100 text-purple-700',
-  returned: 'bg-emerald-100 text-emerald-700',
+  closed: 'bg-emerald-100 text-emerald-700',
 }
 
 export function ItemCard({ item }: { item: Item }) {

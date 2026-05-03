@@ -4,6 +4,12 @@ import { MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '../context'
 import { RegisterPage } from './RegisterPage'
 
+vi.mock('../lib/apiData', () => ({
+  loginRequest: vi.fn(),
+  logoutRequest: vi.fn(),
+  registerRequest: vi.fn(),
+}))
+
 test('RegisterPage validates required fields', async () => {
   render(
     <AuthProvider>
@@ -15,6 +21,5 @@ test('RegisterPage validates required fields', async () => {
 
   await userEvent.click(screen.getByRole('button', { name: /create account/i }))
 
-  // The page uses simple client-side checks inside the register function which throw errors when missing
-  expect(await screen.findByText(/name, email, and password are required/i)).toBeInTheDocument()
+  expect(await screen.findByText(/name, email, student id, and password are required/i)).toBeInTheDocument()
 })

@@ -1,13 +1,15 @@
 import { formatDistanceToNow } from 'date-fns'
 import type { ItemMatch } from '../types/models'
-import { getItemTitle } from '../lib/mockData'
 
 export function MatchCard({ match }: { match: ItemMatch }) {
+  const lostTitle = match.lostItemTitle ?? `Lost item #${match.lostItemId}`
+  const foundTitle = match.foundItemTitle ?? `Found item #${match.foundItemId}`
+
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900">{getItemTitle(match.lostItemId)} ↔ {getItemTitle(match.foundItemId)}</h3>
+          <h3 className="text-sm font-semibold text-slate-900">{lostTitle} ↔ {foundTitle}</h3>
           <p className="mt-1 text-xs text-slate-600">Status: {match.status}</p>
         </div>
         <div className="text-right">

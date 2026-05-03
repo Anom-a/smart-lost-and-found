@@ -4,6 +4,15 @@ import { MemoryRouter } from 'react-router-dom'
 import { AuthProvider } from '../context'
 import { LoginPage } from './LoginPage'
 
+vi.mock('../lib/apiData', () => ({
+  loginRequest: vi.fn(async (email: string) => ({
+    token: 'real-api-token',
+    user: { id: 1, name: email.split('@')[0], email },
+  })),
+  logoutRequest: vi.fn(),
+  registerRequest: vi.fn(),
+}))
+
 test('LoginPage submits credentials', async () => {
   render(
     <AuthProvider>
@@ -17,6 +26,5 @@ test('LoginPage submits credentials', async () => {
   await userEvent.type(screen.getByLabelText(/password/i), 'password')
   await userEvent.click(screen.getByRole('button', { name: /sign in/i }))
 
-  // After login the AuthProvider stores a mock token and user; ensure no error shown
   expect(screen.queryByText(/unable to sign in/i)).not.toBeInTheDocument()
 })

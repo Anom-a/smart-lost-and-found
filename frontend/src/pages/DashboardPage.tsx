@@ -1,15 +1,43 @@
 import { format } from 'date-fns'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { EmptyState } from '../components/EmptyState'
+import { ErrorState } from '../components/ErrorState'
 import { ItemCard } from '../components/ItemCard'
+import { LoadingState } from '../components/LoadingState'
 import { MatchCard } from '../components/MatchCard'
-import { claims, getDashboardStats, items, matches } from '../lib/mockData'
+import { fetchClaims, fetchFoundItems, fetchLostItems, fetchMatches } from '../lib/apiData'
 
 export function DashboardPage() {
-  const stats = getDashboardStats()
-  const recentItems = items.slice(0, 3)
-  const recentMatches = matches.slice(0, 2)
-  const recentClaims = claims.slice(0, 2)
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['dashboard'],
+    queryFn: async () => {
+      const [lostItems, foundItems, matches, claims] = await Promise.all([
+        fetchLostItems(),
+        fetchFoundItems(),
+        fetchMatches(),
+        fetchClaims(),
+      ])
+      const items = [...lostItems, ...foundItems].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+
+      return {
+        stats: {
+          openLostItems: lostItems.filter((item) => item.status === 'open').length,
+          openFoundItems: foundItems.filter((item) => item.status === 'available').length,
+          activeMatches: matches.length,
+          pendingClaims: claims.filter((claim) => claim.status === 'pending').length,
+        },
+        recentItems: items.slice(0, 3),
+        recentMatches: matches.slice(0, 2),
+        recentClaims: claims.slice(0, 2),
+      }
+    },
+  })
+
+  if (isLoading) return <LoadingState message="Loading dashboard..." />
+  if (isError || !data) return <ErrorState description="Unable to load dashboard data from the API." />
+
+  const { stats, recentItems, recentMatches, recentClaims } = data
 
   return (
     <section className="space-y-6">

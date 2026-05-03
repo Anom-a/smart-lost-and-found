@@ -1,11 +1,7 @@
 import { createContext, useMemo, useState, type ReactNode } from 'react'
+import { getApiErrorMessage } from '../lib/api'
+import { loginRequest, logoutRequest, registerRequest, type RegisterPayload } from '../lib/apiData'
 import type { AuthUser } from '../types/models'
-
-type RegisterPayload = {
-  name: string
-  email: string
-  password: string
-}
 
 type AuthContextValue = {
   user: AuthUser | null
@@ -49,34 +45,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error('Email and password are required.')
     }
 
-    const nextUser: AuthUser = {
-      id: 1,
-      name: email.split('@')[0] ?? 'Student',
-      email,
-    }
+    try {
+      const auth = await loginRequest(email, password)
 
-    localStorage.setItem(AUTH_TOKEN_KEY, 'mock-token')
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser))
-    setUser(nextUser)
+      localStorage.setItem(AUTH_TOKEN_KEY, auth.token)
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(auth.user))
+      setUser(auth.user)
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, 'Unable to sign in'))
+    }
   }
 
   async function register(payload: RegisterPayload) {
-    if (!payload.name || !payload.email || !payload.password) {
-      throw new Error('Name, email, and password are required.')
+    if (!payload.name || !payload.email || !payload.studentId || !payload.password) {
+      throw new Error('Name, email, student ID, and password are required.')
     }
 
-    const nextUser: AuthUser = {
-      id: 2,
-      name: payload.name,
-      email: payload.email,
-    }
+    try {
+      const auth = await registerRequest(payload)
 
-    localStorage.setItem(AUTH_TOKEN_KEY, 'mock-token')
-    localStorage.setItem(AUTH_USER_KEY, JSON.stringify(nextUser))
-    setUser(nextUser)
+      localStorage.setItem(AUTH_TOKEN_KEY, auth.token)
+      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(auth.user))
+      setUser(auth.user)
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, 'Unable to register'))
+    }
   }
 
   function logout() {
+    void logoutRequest().catch(() => {})
     localStorage.removeItem(AUTH_TOKEN_KEY)
     localStorage.removeItem(AUTH_USER_KEY)
     setUser(null)

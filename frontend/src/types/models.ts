@@ -1,5 +1,5 @@
 export type ItemType = 'lost' | 'found'
-export type ItemStatus = 'open' | 'matched' | 'claimed' | 'returned'
+export type ItemStatus = 'open' | 'available' | 'claimed' | 'closed'
 
 export type Item = {
   id: number
@@ -19,6 +19,8 @@ export type ItemMatch = {
   id: number
   lostItemId: number
   foundItemId: number
+  lostItemTitle?: string
+  foundItemTitle?: string
   score: number
   status: MatchStatus
   createdAt: string
@@ -56,4 +58,5 @@ export type AuthUser = {
   id: number
   name: string
   email: string
+  studentId?: string
 }

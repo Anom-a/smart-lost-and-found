@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '../hooks/useAuth'
+import { fetchNotifications } from '../lib/apiData'
 import { NotificationBell } from './NotificationBell'
-import { notifications } from '../lib/mockData'
 
 export function Navbar() {
   const { user, logout } = useAuth()
+  const { data: notifications = [] } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: fetchNotifications,
+    enabled: Boolean(user),
+  })
 
   return (
     <div className="flex items-center justify-between gap-4">

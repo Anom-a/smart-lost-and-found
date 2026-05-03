@@ -1,0 +1,251 @@
+import { api, type ApiResponse } from './api'
+import type { AppNotification, AuthUser, Claim, Item, ItemMatch } from '../types/models'
+
+type BackendUser = {
+  id: number
+  name: string
+  email: string
+  student_id?: string
+}
+
+type BackendCategory = {
+  id: number
+  name: string
+  slug: string
+}
+
+type BackendLostItem = {
+  id: number
+  title: string
+  description: string
+  lost_location: string | null
+  lost_at: string | null
+  status: Item['status']
+  created_at: string | null
+  updated_at: string | null
+  user?: BackendUser
+  category?: BackendCategory
+}
+
+type BackendFoundItem = {
+  id: number
+  title: string
+  description: string
+  found_location: string | null
+  found_at: string | null
+  status: Item['status']
+  match_score?: number
+  created_at: string | null
+  updated_at: string | null
+  user?: BackendUser
+  category?: BackendCategory
+}
+
+type BackendClaim = {
+  id: number
+  found_item_id: number
+  message: string | null
+  proof_details: Record<string, unknown> | null
+  status: Claim['status']
+  created_at: string
+  claimant?: BackendUser
+}
+
+type BackendNotification = {
+  id: number
+  type: string
+  title: string
+  message: string
+  read_at: string | null
+  created_at: string
+}
+
+type AuthResponse = {
+  user: BackendUser
+  token: string
+}
+
+export type RegisterPayload = {
+  name: string
+  email: string
+  studentId: string
+  password: string
+}
+
+export type ReportPayload = {
+  title: string
+  itemCategoryId: number
+  date?: string
+  location: string
+  description: string
+}
+
+export function toAuthUser(user: BackendUser): AuthUser {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    studentId: user.student_id,
+  }
+}
+
+function toLostItem(item: BackendLostItem): Item {
+  return {
+    id: item.id,
+    type: 'lost',
+    title: item.title,
+    category: item.category?.name ?? 'Uncategorized',
+    date: item.lost_at ?? item.created_at ?? new Date().toISOString(),
+    location: item.lost_location ?? 'Not specified',
+    status: item.status,
+    description: item.description,
+    reportedBy: item.user?.name ?? 'Unknown',
+  }
+}
+
+function toFoundItem(item: BackendFoundItem): Item {
+  return {
+    id: item.id,
+    type: 'found',
+    title: item.title,
+    category: item.category?.name ?? 'Uncategorized',
+    date: item.found_at ?? item.created_at ?? new Date().toISOString(),
+    location: item.found_location ?? 'Not specified',
+    status: item.status,
+    description: item.description,
+    reportedBy: item.user?.name ?? 'Unknown',
+  }
+}
+
+function toClaim(claim: BackendClaim): Claim {
+  return {
+    id: claim.id,
+    itemId: claim.found_item_id,
+    itemType: 'found',
+    claimant: claim.claimant?.name ?? 'Unknown claimant',
+    reason: claim.message ?? JSON.stringify(claim.proof_details ?? {}),
+    status: claim.status,
+    submittedAt: claim.created_at,
+  }
+}
+
+function toNotification(notification: BackendNotification): AppNotification {
+  return {
+    id: notification.id,
+    type: notification.type.includes('claim') ? 'claim' : notification.type.includes('match') ? 'match' : 'system',
+    title: notification.title,
+    message: notification.message,
+    createdAt: notification.created_at,
+    read: Boolean(notification.read_at),
+  }
+}
+
+export async function loginRequest(email: string, password: string) {
+  const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', { email, password })
+
+  return {
+    user: toAuthUser(response.data.data.user),
+    token: response.data.data.token,
+  }
+}
+
+export async function registerRequest(payload: RegisterPayload) {
+  const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', {
+    name: payload.name,
+    email: payload.email,
+    student_id: payload.studentId,
+    password: payload.password,
+    password_confirmation: payload.password,
+  })
+
+  return {
+    user: toAuthUser(response.data.data.user),
+    token: response.data.data.token,
+  }
+}
+
+export async function logoutRequest() {
+  await api.post('/auth/logout')
+}
+
+export async function fetchLostItems() {
+  const response = await api.get<ApiResponse<BackendLostItem[]>>('/lost-items', { params: { per_page: 50 } })
+
+  return response.data.data.map(toLostItem)
+}
+
+export async function fetchFoundItems() {
+  const response = await api.get<ApiResponse<BackendFoundItem[]>>('/found-items', { params: { per_page: 50 } })
+
+  return response.data.data.map(toFoundItem)
+}
+
+export async function fetchLostItem(id: number) {
+  const response = await api.get<ApiResponse<BackendLostItem>>(`/lost-items/${id}`)
+
+  return toLostItem(response.data.data)
+}
+
+export async function fetchFoundItem(id: number) {
+  const response = await api.get<ApiResponse<BackendFoundItem>>(`/found-items/${id}`)
+
+  return toFoundItem(response.data.data)
+}
+
+export async function fetchClaims() {
+  const response = await api.get<ApiResponse<BackendClaim[]>>('/claims', { params: { per_page: 50 } })
+
+  return response.data.data.map(toClaim)
+}
+
+export async function fetchNotifications() {
+  const response = await api.get<ApiResponse<BackendNotification[]>>('/notifications', { params: { per_page: 50 } })
+
+  return response.data.data.map(toNotification)
+}
+
+export async function fetchMatches() {
+  const lostItems = await fetchLostItems()
+  const responses = await Promise.all(
+    lostItems.map(async (lostItem) => {
+      const response = await api.get<ApiResponse<BackendFoundItem[]>>(`/lost-items/${lostItem.id}/matches`)
+
+      return response.data.data.map((foundItem): ItemMatch => ({
+        id: Number(`${lostItem.id}${foundItem.id}`),
+        lostItemId: lostItem.id,
+        foundItemId: foundItem.id,
+        lostItemTitle: lostItem.title,
+        foundItemTitle: foundItem.title,
+        score: foundItem.match_score ?? 0,
+        status: 'pending',
+        createdAt: foundItem.updated_at ?? foundItem.created_at ?? new Date().toISOString(),
+      }))
+    }),
+  )
+
+  return responses.flat()
+}
+
+export async function createLostItem(payload: ReportPayload) {
+  const response = await api.post<ApiResponse<BackendLostItem>>('/lost-items', {
+    item_category_id: payload.itemCategoryId,
+    title: payload.title,
+    description: payload.description,
+    lost_location: payload.location,
+    lost_at: payload.date || null,
+  })
+
+  return toLostItem(response.data.data)
+}
+
+export async function createFoundItem(payload: ReportPayload) {
+  const response = await api.post<ApiResponse<BackendFoundItem>>('/found-items', {
+    item_category_id: payload.itemCategoryId,
+    title: payload.title,
+    description: payload.description,
+    found_location: payload.location,
+    found_at: payload.date || null,
+  })
+
+  return toFoundItem(response.data.data)
+}

@@ -1,10 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { ItemCard } from './ItemCard'
-import { items } from '../lib/mockData'
+import type { Item } from '../types/models'
 
 test('ItemCard renders title, category, date, location, and status', () => {
-  const item = items[0]
+  const item: Item = {
+    id: 1,
+    type: 'lost',
+    title: 'Dell XPS 13 Laptop',
+    category: 'Electronics',
+    date: '2026-04-28T00:00:00.000Z',
+    location: 'Engineering Block - Lab 2',
+    status: 'open',
+    description: 'Silver 13-inch laptop with university sticker on the lid.',
+    reportedBy: 'Amina Yusuf',
+  }
+
   render(
     <MemoryRouter>
       <ItemCard item={item} />
