@@ -24,7 +24,7 @@ class FoundItemControllerTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->post('/api/found-items', $this->payload($category, [
-            'images' => [$this->fakeImage()],
+            'image' => UploadedFile::fake()->image('found-item.jpg'),
         ]));
 
         $response->assertCreated()
@@ -33,7 +33,62 @@ class FoundItemControllerTest extends TestCase
 
         $item = FoundItem::firstOrFail();
         $this->assertSame($user->id, $item->user_id);
-        Storage::disk('public')->assertExists($item->images[0]);
+        $this->assertNotNull($item->image_path);
+        Storage::disk('public')->assertExists($item->image_path);
+    }
+
+    public function test_create_found_item_rejects_invalid_image_type(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
+
+        $response = $this->post('/api/found-items', $this->payload($category, [
+            'image' => UploadedFile::fake()->create('bad.gif', 100, 'image/gif'),
+        ]));
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['image']);
+    }
+
+    public function test_create_found_item_rejects_image_larger_than_5mb(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
+
+        $response = $this->post('/api/found-items', $this->payload($category, [
+            'image' => UploadedFile::fake()->image('too-large.jpg')->size(5121),
+        ]));
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['image']);
+    }
+
+    public function test_create_found_item_without_image_is_allowed(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
+
+        $response = $this->postJson('/api/found-items', $this->payload($category));
+
+        $response->assertCreated()
+            ->assertJsonPath('data.image_path', null);
+
+        $this->assertNull(FoundItem::firstOrFail()->image_path);
+    }
+
+    public function test_create_found_item_saves_image_path_in_database(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
+
+        $this->post('/api/found-items', $this->payload($category, [
+            'image' => UploadedFile::fake()->image('id-card.png'),
+        ]))->assertCreated();
+
+        $item = FoundItem::firstOrFail();
+        $this->assertNotNull($item->image_path);
+        $this->assertStringStartsWith('items/found/', $item->image_path);
     }
 
     public function test_create_found_item_returns_validation_errors(): void
@@ -138,17 +193,9 @@ class FoundItemControllerTest extends TestCase
             'keywords' => ['id'],
             'found_location' => 'Cafeteria',
             'found_at' => now(),
+            'image_path' => null,
             'handover_location' => 'Security office',
-            'images' => [],
             'status' => 'available',
         ], $overrides));
-    }
-
-    private function fakeImage(): UploadedFile
-    {
-        $path = tempnam(sys_get_temp_dir(), 'found-item-image');
-        file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='));
-
-        return new UploadedFile($path, 'item.png', 'image/png', null, true);
     }
 }

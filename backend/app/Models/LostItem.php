@@ -23,14 +23,13 @@ class LostItem extends Model
         'keywords',
         'lost_location',
         'lost_at',
-        'images',
+        'image_path',
         'contact_preference',
         'status',
     ];
 
     protected $casts = [
         'keywords' => 'array',
-        'images' => 'array',
         'lost_at' => 'datetime',
     ];
 

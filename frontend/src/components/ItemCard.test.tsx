@@ -28,3 +28,35 @@ test('ItemCard renders title, category, date, location, and status', () => {
   expect(screen.getByText(item.reportedBy)).toBeInTheDocument()
   expect(screen.getByText(item.status)).toBeInTheDocument()
 })
+
+test('ItemCard renders image when provided and fallback when not', () => {
+  const itemWithImage: Item = { ...((() => ({
+    id: 2,
+    type: 'found',
+    title: 'Wallet',
+    category: 'Accessories',
+    date: '2026-04-28T00:00:00.000Z',
+    location: 'Gate',
+    status: 'available',
+    description: 'Brown wallet',
+    reportedBy: 'Ali',
+  }))() as Item), imageUrl: 'http://cdn.test/storage/items/found/wallet.png' }
+
+  render(
+    <MemoryRouter>
+      <ItemCard item={itemWithImage} />
+    </MemoryRouter>,
+  )
+
+  expect(screen.getByAltText(/wallet image/i)).toBeInTheDocument()
+
+  const itemWithoutImage: Item = { ...itemWithImage, id: 3, title: 'NoImage', imageUrl: undefined }
+
+  render(
+    <MemoryRouter>
+      <ItemCard item={itemWithoutImage} />
+    </MemoryRouter>,
+  )
+
+  expect(screen.getByText(/no image uploaded for this item/i)).toBeInTheDocument()
+})

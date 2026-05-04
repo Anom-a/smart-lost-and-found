@@ -7,7 +7,6 @@ use App\Http\Resources\LostItemResource;
 use App\Models\LostItem;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class LostItemController extends Controller
 {
@@ -41,7 +40,7 @@ class LostItemController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
-        $data['images'] = $this->storeImages($request, 'lost-items');
+        $data['image_path'] = $this->storeImage($request, 'items/lost');
         $data['status'] = $data['status'] ?? 'open';
 
         $item = LostItem::create($data)->load(['user', 'category']);
@@ -62,8 +61,8 @@ class LostItemController extends Controller
 
         $data = $request->validated();
 
-        if ($request->hasFile('images')) {
-            $data['images'] = $this->storeImages($request, 'lost-items');
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $this->storeImage($request, 'items/lost');
         }
 
         $lostItem->update($data);
@@ -82,14 +81,12 @@ class LostItemController extends Controller
         return $this->successResponse('Lost item deleted.');
     }
 
-    private function storeImages(Request $request, string $directory): array
+    private function storeImage(Request $request, string $directory): ?string
     {
-        if (! $request->hasFile('images')) {
-            return [];
+        if (! $request->hasFile('image')) {
+            return null;
         }
 
-        return collect($request->file('images'))
-            ->map(fn ($image) => $image->store($directory, 'public'))
-            ->all();
+        return $request->file('image')->store($directory, 'public');
     }
 }

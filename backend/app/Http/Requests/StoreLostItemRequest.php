@@ -23,8 +23,7 @@ class StoreLostItemRequest extends FormRequest
             'lost_at' => ['nullable', 'date'],
             'contact_preference' => ['nullable', 'string', 'max:255'],
             'status' => ['sometimes', 'in:open,claimed,closed'],
-            'images' => ['nullable', 'array', 'max:5'],
-            'images.*' => ['image', 'max:4096'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 }

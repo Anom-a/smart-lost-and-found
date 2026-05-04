@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -9,6 +10,11 @@ const reportSchema = z.object({
   date: z.string().optional(),
   location: z.string().min(3, 'Location is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
+  image: z
+    .custom<File | undefined>((value) => value === undefined || value instanceof File, {
+      message: 'Invalid image file',
+    })
+    .optional(),
 })
 
 type ReportFormData = z.infer<typeof reportSchema>
@@ -24,8 +30,23 @@ export function ItemReportForm({
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ReportFormData>({ resolver: zodResolver(reportSchema), defaultValues: initial })
+
+  const selectedImage = watch('image')
+  const imagePreviewUrl = useMemo(
+    () => (selectedImage instanceof File ? URL.createObjectURL(selectedImage) : null),
+    [selectedImage],
+  )
+
+  const imageField = register('image', {
+    onChange: (event) => {
+      const file = event.target.files?.[0]
+      event.target.value = ''
+      return file
+    },
+  })
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -61,6 +82,29 @@ export function ItemReportForm({
         <label className="text-sm font-medium text-slate-700">Description</label>
         <textarea className="mt-1 w-full rounded-md border px-3 py-2" rows={4} {...register('description')} />
         {errors.description ? <p className="mt-1 text-sm text-red-600">{errors.description.message}</p> : null}
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-slate-700" htmlFor="item-image">Item image (optional)</label>
+        <input
+          id="item-image"
+          type="file"
+          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          className="mt-1 w-full rounded-md border px-3 py-2"
+          name={imageField.name}
+          ref={imageField.ref}
+          onBlur={imageField.onBlur}
+          onChange={imageField.onChange}
+        />
+        <p className="mt-1 text-xs text-slate-500">Accepted formats: JPG, JPEG, PNG, WEBP. Max size: 5MB.</p>
+        {errors.image ? <p className="mt-1 text-sm text-red-600">{errors.image.message}</p> : null}
+        {imagePreviewUrl ? (
+          <img
+            src={imagePreviewUrl}
+            alt="Selected item preview"
+            className="mt-3 h-48 w-full rounded-md border border-slate-200 object-cover"
+          />
+        ) : null}
       </div>
 
       <div>

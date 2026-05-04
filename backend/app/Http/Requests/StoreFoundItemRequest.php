@@ -23,8 +23,7 @@ class StoreFoundItemRequest extends FormRequest
             'found_at' => ['nullable', 'date'],
             'handover_location' => ['nullable', 'string', 'max:255'],
             'status' => ['sometimes', 'in:available,claimed,closed'],
-            'images' => ['nullable', 'array', 'max:5'],
-            'images.*' => ['image', 'max:4096'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ];
     }
 }

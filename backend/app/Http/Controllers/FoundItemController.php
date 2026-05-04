@@ -40,7 +40,7 @@ class FoundItemController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = $request->user()->id;
-        $data['images'] = $this->storeImages($request, 'found-items');
+        $data['image_path'] = $this->storeImage($request, 'items/found');
         $data['status'] = $data['status'] ?? 'available';
 
         $item = FoundItem::create($data)->load(['user', 'category']);
@@ -61,8 +61,8 @@ class FoundItemController extends Controller
 
         $data = $request->validated();
 
-        if ($request->hasFile('images')) {
-            $data['images'] = $this->storeImages($request, 'found-items');
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $this->storeImage($request, 'items/found');
         }
 
         $foundItem->update($data);
@@ -81,14 +81,12 @@ class FoundItemController extends Controller
         return $this->successResponse('Found item deleted.');
     }
 
-    private function storeImages(Request $request, string $directory): array
+    private function storeImage(Request $request, string $directory): ?string
     {
-        if (! $request->hasFile('images')) {
-            return [];
+        if (! $request->hasFile('image')) {
+            return null;
         }
 
-        return collect($request->file('images'))
-            ->map(fn ($image) => $image->store($directory, 'public'))
-            ->all();
+        return $request->file('image')->store($directory, 'public');
     }
 }

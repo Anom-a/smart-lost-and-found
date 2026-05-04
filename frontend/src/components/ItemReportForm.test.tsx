@@ -17,3 +17,15 @@ test('ItemReportForm shows validation errors', async () => {
   expect(await screen.findByText(/category is required/i)).toBeInTheDocument()
   expect(await screen.findByText(/location is required/i)).toBeInTheDocument()
 })
+
+test('ItemReportForm shows image preview after file selection', async () => {
+  const onSubmit = vi.fn()
+  render(<ItemReportForm onSubmit={onSubmit} />)
+
+  const file = new File(['hello'], 'photo.png', { type: 'image/png' })
+  const input = screen.getByLabelText(/item image/i) as HTMLInputElement
+
+  await userEvent.upload(input, file)
+
+  expect(await screen.findByAltText(/selected item preview/i)).toBeInTheDocument()
+})

@@ -1,4 +1,4 @@
-import { api, type ApiResponse } from './api'
+import { api, STORAGE_URL, type ApiResponse } from './api'
 import type { AppNotification, AuthUser, Claim, Item, ItemMatch } from '../types/models'
 
 type BackendUser = {
@@ -23,6 +23,7 @@ type BackendLostItem = {
   status: Item['status']
   created_at: string | null
   updated_at: string | null
+  image_path: string | null
   user?: BackendUser
   category?: BackendCategory
 }
@@ -37,6 +38,7 @@ type BackendFoundItem = {
   match_score?: number
   created_at: string | null
   updated_at: string | null
+  image_path: string | null
   user?: BackendUser
   category?: BackendCategory
 }
@@ -78,6 +80,43 @@ export type ReportPayload = {
   date?: string
   location: string
   description: string
+  image?: File
+}
+
+function toStorageUrl(path: string | null | undefined): string | undefined {
+  if (!path) {
+    return undefined
+  }
+
+  return `${STORAGE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`
+}
+
+function toItemFormData(payload: ReportPayload, type: 'lost' | 'found'): FormData {
+  const formData = new FormData()
+
+  formData.append('item_category_id', String(payload.itemCategoryId))
+  formData.append('title', payload.title)
+  formData.append('description', payload.description)
+
+  if (type === 'lost') {
+    formData.append('lost_location', payload.location)
+    if (payload.date) {
+      formData.append('lost_at', payload.date)
+    }
+  }
+
+  if (type === 'found') {
+    formData.append('found_location', payload.location)
+    if (payload.date) {
+      formData.append('found_at', payload.date)
+    }
+  }
+
+  if (payload.image) {
+    formData.append('image', payload.image)
+  }
+
+  return formData
 }
 
 export function toAuthUser(user: BackendUser): AuthUser {
@@ -100,6 +139,7 @@ function toLostItem(item: BackendLostItem): Item {
     status: item.status,
     description: item.description,
     reportedBy: item.user?.name ?? 'Unknown',
+    imageUrl: toStorageUrl(item.image_path),
   }
 }
 
@@ -114,6 +154,7 @@ function toFoundItem(item: BackendFoundItem): Item {
     status: item.status,
     description: item.description,
     reportedBy: item.user?.name ?? 'Unknown',
+    imageUrl: toStorageUrl(item.image_path),
   }
 }
 
@@ -227,24 +268,20 @@ export async function fetchMatches() {
 }
 
 export async function createLostItem(payload: ReportPayload) {
-  const response = await api.post<ApiResponse<BackendLostItem>>('/lost-items', {
-    item_category_id: payload.itemCategoryId,
-    title: payload.title,
-    description: payload.description,
-    lost_location: payload.location,
-    lost_at: payload.date || null,
+  const response = await api.post<ApiResponse<BackendLostItem>>('/lost-items', toItemFormData(payload, 'lost'), {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   })
 
   return toLostItem(response.data.data)
 }
 
 export async function createFoundItem(payload: ReportPayload) {
-  const response = await api.post<ApiResponse<BackendFoundItem>>('/found-items', {
-    item_category_id: payload.itemCategoryId,
-    title: payload.title,
-    description: payload.description,
-    found_location: payload.location,
-    found_at: payload.date || null,
+  const response = await api.post<ApiResponse<BackendFoundItem>>('/found-items', toItemFormData(payload, 'found'), {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   })
 
   return toFoundItem(response.data.data)

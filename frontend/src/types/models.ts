@@ -11,6 +11,7 @@ export type Item = {
   status: ItemStatus
   description: string
   reportedBy: string
+  imageUrl?: string
 }
 
 export type MatchStatus = 'pending' | 'reviewed' | 'confirmed'

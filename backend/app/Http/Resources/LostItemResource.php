@@ -18,7 +18,7 @@ class LostItemResource extends JsonResource
             'keywords' => $this->keywords ?? [],
             'lost_location' => $this->lost_location,
             'lost_at' => optional($this->lost_at)->toISOString(),
-            'images' => $this->images ?? [],
+            'image_path' => $this->image_path,
             'contact_preference' => $this->contact_preference,
             'status' => $this->status,
             'created_at' => optional($this->created_at)->toISOString(),

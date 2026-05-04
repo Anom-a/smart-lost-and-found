@@ -24,7 +24,7 @@ class LostItemControllerTest extends TestCase
         Sanctum::actingAs($user);
 
         $response = $this->post('/api/lost-items', $this->payload($category, [
-            'images' => [$this->fakeImage()],
+            'image' => UploadedFile::fake()->image('lost-item.jpg'),
         ]));
 
         $response->assertCreated()
@@ -33,7 +33,62 @@ class LostItemControllerTest extends TestCase
 
         $item = LostItem::firstOrFail();
         $this->assertSame($user->id, $item->user_id);
-        Storage::disk('public')->assertExists($item->images[0]);
+        $this->assertNotNull($item->image_path);
+        Storage::disk('public')->assertExists($item->image_path);
+    }
+
+    public function test_create_lost_item_rejects_invalid_image_type(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Electronics', 'slug' => 'electronics']);
+
+        $response = $this->post('/api/lost-items', $this->payload($category, [
+            'image' => UploadedFile::fake()->create('malware.pdf', 100, 'application/pdf'),
+        ]));
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['image']);
+    }
+
+    public function test_create_lost_item_rejects_image_larger_than_5mb(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Electronics', 'slug' => 'electronics']);
+
+        $response = $this->post('/api/lost-items', $this->payload($category, [
+            'image' => UploadedFile::fake()->image('too-large.jpg')->size(5121),
+        ]));
+
+        $response->assertUnprocessable()->assertJsonValidationErrors(['image']);
+    }
+
+    public function test_create_lost_item_without_image_is_allowed(): void
+    {
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Electronics', 'slug' => 'electronics']);
+
+        $response = $this->postJson('/api/lost-items', $this->payload($category));
+
+        $response->assertCreated()
+            ->assertJsonPath('data.image_path', null);
+
+        $this->assertNull(LostItem::firstOrFail()->image_path);
+    }
+
+    public function test_create_lost_item_saves_image_path_in_database(): void
+    {
+        Storage::fake('public');
+        Sanctum::actingAs(User::factory()->create());
+        $category = ItemCategory::create(['name' => 'Electronics', 'slug' => 'electronics']);
+
+        $this->post('/api/lost-items', $this->payload($category, [
+            'image' => UploadedFile::fake()->image('laptop.webp'),
+        ]))->assertCreated();
+
+        $item = LostItem::firstOrFail();
+        $this->assertNotNull($item->image_path);
+        $this->assertStringStartsWith('items/lost/', $item->image_path);
     }
 
     public function test_create_lost_item_returns_validation_errors(): void
@@ -137,16 +192,8 @@ class LostItemControllerTest extends TestCase
             'keywords' => ['laptop'],
             'lost_location' => 'Main library',
             'lost_at' => now(),
-            'images' => [],
+            'image_path' => null,
             'status' => 'open',
         ], $overrides));
-    }
-
-    private function fakeImage(): UploadedFile
-    {
-        $path = tempnam(sys_get_temp_dir(), 'lost-item-image');
-        file_put_contents($path, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='));
-
-        return new UploadedFile($path, 'item.png', 'image/png', null, true);
     }
 }

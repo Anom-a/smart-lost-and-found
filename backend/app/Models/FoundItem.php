@@ -23,14 +23,13 @@ class FoundItem extends Model
         'keywords',
         'found_location',
         'found_at',
+        'image_path',
         'handover_location',
-        'images',
         'status',
     ];
 
     protected $casts = [
         'keywords' => 'array',
-        'images' => 'array',
         'found_at' => 'datetime',
     ];
 
