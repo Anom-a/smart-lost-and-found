@@ -9,13 +9,13 @@ type EmptyStateProps = {
 
 export function EmptyState({ title, description, actionLabel, actionTo }: EmptyStateProps) {
   return (
-    <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center">
-      <h2 className="text-xl font-semibold text-slate-900">{title}</h2>
-      <p className="mt-2 text-slate-600">{description}</p>
+    <div className="rounded-2xl border border-dashed border-[#c3c5d7] bg-[#f3f3fe] p-8 text-center">
+      <h2 className="text-xl font-semibold text-[#191b23]">{title}</h2>
+      <p className="mt-2 text-[#737686]">{description}</p>
       {actionLabel && actionTo ? (
         <Link
           to={actionTo}
-          className="mt-4 inline-flex rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white"
+          className="mt-4 inline-flex h-11 items-center rounded-lg bg-[#003fb1] px-4 text-sm font-semibold text-white"
         >
           {actionLabel}
         </Link>

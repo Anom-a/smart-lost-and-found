@@ -6,10 +6,10 @@ export function NotificationBell({ notifications }: { notifications: AppNotifica
   const unread = notifications.filter((n) => !n.read).length
 
   return (
-    <Link to="/notifications" className="relative inline-flex items-center">
-      <Bell className="h-5 w-5 text-slate-700" />
+    <Link to="/notifications" className="relative inline-flex h-10 w-10 items-center justify-center rounded-full text-[#191b23] transition hover:bg-[#f3f3fe]">
+      <Bell className="h-5 w-5" />
       {unread > 0 ? (
-        <span className="absolute -top-1 -right-2 inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-xs text-white">{unread}</span>
+        <span className="absolute right-1 top-1 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ba1a1a] px-1 text-[10px] font-semibold text-white">{unread}</span>
       ) : null}
     </Link>
   )

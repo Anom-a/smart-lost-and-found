@@ -4,14 +4,14 @@ import { Sidebar } from './Sidebar'
 
 export function MainLayout() {
   return (
-    <div className="mx-auto min-h-screen w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
-      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+    <div className="min-h-screen bg-[#faf8ff]">
+      <div className="mx-auto grid min-h-screen w-full max-w-[1280px] lg:grid-cols-[292px_1fr]">
         <Sidebar />
-        <div className="space-y-4">
-          <header className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="min-w-0 border-l border-[#e2e1ed]">
+          <header className="sticky top-0 z-20 border-b border-[#e2e1ed] bg-[#faf8ff]/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
             <Navbar />
           </header>
-          <main className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
+          <main className="px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             <Outlet />
           </main>
         </div>
