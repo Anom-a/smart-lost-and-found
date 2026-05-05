@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 import { ClaimsPage } from './pages/ClaimsPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { FoundItemDetailPage } from './pages/FoundItemDetailPage'
@@ -19,11 +19,12 @@ import { RegisterPage } from './pages/RegisterPage'
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route path="/home" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/lost-items" element={<LostItemsPage />} />
           <Route path="/lost-items/new" element={<NewLostItemPage />} />
@@ -37,7 +38,6 @@ export function AppRoutes() {
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />
-      <Route path="/home" element={<HomePage />} />
     </Routes>
   )
 }
