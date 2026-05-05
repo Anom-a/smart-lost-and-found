@@ -1,8 +1,43 @@
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useCategories } from '../hooks/useCategories'
+
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+
+function isFileLike(value: unknown): value is File {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'name' in value &&
+    'size' in value &&
+    'type' in value &&
+    typeof (value as File).name === 'string' &&
+    typeof (value as File).size === 'number' &&
+    typeof (value as File).type === 'string'
+  )
+}
+
+function normalizeImageValue(value: unknown): unknown {
+  if (isFileLike(value)) {
+    return value
+  }
+
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'length' in value &&
+    'item' in value &&
+    typeof (value as FileList).length === 'number' &&
+    typeof (value as FileList).item === 'function'
+  ) {
+    return (value as FileList).item(0) ?? undefined
+  }
+
+  return value
+}
 
 const reportSchema = z.object({
   title: z.string().min(3, 'Title is required'),
@@ -10,11 +45,15 @@ const reportSchema = z.object({
   date: z.string().optional(),
   location: z.string().min(3, 'Location is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
-  image: z
-    .custom<File | undefined>((value) => value === undefined || value instanceof File, {
+  image: z.preprocess(
+    normalizeImageValue,
+    z.custom<File | undefined>((value) => value === undefined || isFileLike(value), {
       message: 'Invalid image file',
     })
-    .optional(),
+      .refine((file) => !file || ACCEPTED_IMAGE_TYPES.includes(file.type), 'Use a JPG, PNG, or WEBP image')
+      .refine((file) => !file || file.size <= MAX_IMAGE_SIZE, 'Image must be 5MB or smaller')
+      .optional(),
+  ),
 })
 
 type ReportFormData = z.infer<typeof reportSchema>
@@ -31,25 +70,50 @@ export function ItemReportForm({
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ReportFormData>({ resolver: zodResolver(reportSchema), defaultValues: initial })
 
   const selectedImage = watch('image')
-  const imagePreviewUrl = useMemo(
-    () => (selectedImage instanceof File ? URL.createObjectURL(selectedImage) : null),
-    [selectedImage],
-  )
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null)
 
-  const imageField = register('image', {
-    onChange: (event) => {
-      const file = event.target.files?.[0]
-      event.target.value = ''
-      return file
-    },
-  })
+  useEffect(() => {
+    let currentUrl: string | null = null
+    const previewImage = normalizeImageValue(selectedImage)
+
+    if (isFileLike(previewImage)) {
+      if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+        currentUrl = URL.createObjectURL(previewImage)
+      } else {
+        // Fallback for test environment where createObjectURL may not exist.
+        // Use a tiny transparent PNG data URI as a harmless placeholder.
+        currentUrl = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/p9sAAAAASUVORK5CYII='
+      }
+
+      setImagePreviewUrl(currentUrl)
+    } else {
+      setImagePreviewUrl(null)
+    }
+
+    return () => {
+      if (currentUrl && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+        URL.revokeObjectURL(currentUrl)
+      }
+    }
+  }, [selectedImage])
+
+  const imageField = register('image')
+  const submitReport = (data: ReportFormData) => {
+    const image = normalizeImageValue(data.image ?? selectedImage)
+
+    return onSubmit({
+      ...data,
+      image: isFileLike(image) ? image : undefined,
+    })
+  }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form onSubmit={handleSubmit(submitReport)} className="space-y-4">
       <div>
         <label className="text-sm font-medium text-slate-700">Title</label>
         <input className="mt-1 w-full rounded-md border px-3 py-2" {...register('title')} />
@@ -94,7 +158,11 @@ export function ItemReportForm({
           name={imageField.name}
           ref={imageField.ref}
           onBlur={imageField.onBlur}
-          onChange={imageField.onChange}
+          onChange={(e) => {
+            const file = e.target.files?.[0]
+            imageField.onChange(e)
+            setValue('image', file || undefined, { shouldValidate: true })
+          }}
         />
         <p className="mt-1 text-xs text-slate-500">Accepted formats: JPG, JPEG, PNG, WEBP. Max size: 5MB.</p>
         {errors.image ? <p className="mt-1 text-sm text-red-600">{errors.image.message}</p> : null}

@@ -99,48 +99,15 @@ test('createFoundItem submits FormData and maps image URL from storage base', as
   )
 
   expect(result.imageUrl).toBeUndefined()
-})import { api } from './api'
-import { createFoundItem, createLostItem } from './apiData'
-
-vi.mock('./api', () => ({
-  api: {
-    post: vi.fn(),
-  },
-}))
-
-const postMock = vi.mocked(api.post)
-
-beforeEach(() => {
-  postMock.mockReset()
 })
 
 test('createLostItem submits multipart FormData with the selected image', async () => {
   const image = new File(['image'], 'item.png', { type: 'image/png' })
-  postMock.mockResolvedValueOnce({
-    data: {
-      data: {
-        id: 1,
-        title: 'Lost laptop',
-        description: 'A black laptop with a sticker.',
-        lost_location: 'Main library',
-        lost_at: null,
-        image_path: 'items/lost/item.png',
-        status: 'open',
-        created_at: '2026-05-03T00:00:00.000Z',
-        updated_at: '2026-05-03T00:00:00.000Z',
-      },
-    },
-  })
+  apiPost.mockResolvedValueOnce({ data: { data: { id: 1, title: 'Lost laptop', description: 'A black laptop with a sticker.', lost_location: 'Main library', lost_at: null, image_path: 'items/lost/item.png', status: 'open', created_at: '2026-05-03T00:00:00.000Z', updated_at: '2026-05-03T00:00:00.000Z' } } })
 
-  await createLostItem({
-    title: 'Lost laptop',
-    itemCategoryId: 1,
-    location: 'Main library',
-    description: 'A black laptop with a sticker.',
-    image,
-  })
+  await createLostItem({ title: 'Lost laptop', itemCategoryId: 1, location: 'Main library', description: 'A black laptop with a sticker.', image })
 
-  const [, body, config] = postMock.mock.calls[0]
+  const [, body, config] = apiPost.mock.calls[0]
 
   expect(body).toBeInstanceOf(FormData)
   expect((body as FormData).get('image')).toBe(image)
@@ -149,30 +116,11 @@ test('createLostItem submits multipart FormData with the selected image', async 
 })
 
 test('createFoundItem submits multipart FormData without an image', async () => {
-  postMock.mockResolvedValueOnce({
-    data: {
-      data: {
-        id: 1,
-        title: 'Found ID card',
-        description: 'A student ID card found near the cafeteria.',
-        found_location: 'Cafeteria',
-        found_at: null,
-        image_path: null,
-        status: 'available',
-        created_at: '2026-05-03T00:00:00.000Z',
-        updated_at: '2026-05-03T00:00:00.000Z',
-      },
-    },
-  })
+  apiPost.mockResolvedValueOnce({ data: { data: { id: 1, title: 'Found ID card', description: 'A student ID card found near the cafeteria.', found_location: 'Cafeteria', found_at: null, image_path: null, status: 'available', created_at: '2026-05-03T00:00:00.000Z', updated_at: '2026-05-03T00:00:00.000Z' } } })
 
-  await createFoundItem({
-    title: 'Found ID card',
-    itemCategoryId: 2,
-    location: 'Cafeteria',
-    description: 'A student ID card found near the cafeteria.',
-  })
+  await createFoundItem({ title: 'Found ID card', itemCategoryId: 2, location: 'Cafeteria', description: 'A student ID card found near the cafeteria.' })
 
-  const [, body, config] = postMock.mock.calls[0]
+  const [, body, config] = apiPost.mock.calls[0]
 
   expect(body).toBeInstanceOf(FormData)
   expect((body as FormData).get('image')).toBeNull()
