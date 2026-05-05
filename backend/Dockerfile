@@ -6,3 +6,4 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /var/www/html
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=$PORT
