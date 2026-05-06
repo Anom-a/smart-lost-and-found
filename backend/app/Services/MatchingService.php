@@ -161,16 +161,33 @@ class MatchingService
         return round($percent / 100, 4);
     }
 
+    /**
+     * Get the weight configuration for a given matching signal.
+     *
+     * @param  string  $signal
+     * @return float
+     */
     private function weight(string $signal): float
     {
         return (float) config("matching.weights.$signal", 0);
     }
 
+    /**
+     * Get the minimum total score threshold for a match.
+     *
+     * @return float
+     */
     private function threshold(): float
     {
         return (float) config('matching.threshold', 0.40);
     }
 
+    /**
+     * Clean and normalize an array of keywords.
+     *
+     * @param  array  $keywords
+     * @return array
+     */
     private function keywords(array $keywords): array
     {
         return collect($keywords)
@@ -181,6 +198,12 @@ class MatchingService
             ->all();
     }
 
+    /**
+     * Normalize text by lowering case and removing special characters.
+     *
+     * @param  string|null  $value
+     * @return string
+     */
     private function normalizeText(?string $value): string
     {
         return Str::of($value ?? '')
