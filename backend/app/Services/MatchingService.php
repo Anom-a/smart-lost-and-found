@@ -47,11 +47,25 @@ class MatchingService
             ->values();
     }
 
+    /**
+     * Calculate a single total match score between a lost and found item.
+     *
+     * @param  LostItem  $lostItem
+     * @param  FoundItem  $foundItem
+     * @return float
+     */
     public function score(LostItem $lostItem, FoundItem $foundItem): float
     {
         return $this->scoreBreakdown($lostItem, $foundItem)['total'];
     }
 
+    /**
+     * Get a detailed breakdown of scores for each matching signal.
+     *
+     * @param  LostItem  $lostItem
+     * @param  FoundItem  $foundItem
+     * @return array
+     */
     public function scoreBreakdown(LostItem $lostItem, FoundItem $foundItem): array
     {
         $scores = [
