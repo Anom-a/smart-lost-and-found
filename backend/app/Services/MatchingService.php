@@ -21,6 +21,13 @@ use Illuminate\Support\Str;
  */
 class MatchingService
 {
+    /**
+     * Find potential found item matches for a given lost item.
+     *
+     * @param  LostItem  $lostItem
+     * @param  int  $limit
+     * @return Collection
+     */
     public function findMatchesForLostItem(LostItem $lostItem, int $limit = 10): Collection
     {
         return FoundItem::query()
