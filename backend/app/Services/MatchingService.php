@@ -36,6 +36,7 @@ class MatchingService
             ->get()
             ->map(function (FoundItem $foundItem) use ($lostItem): FoundItem {
                 $breakdown = $this->scoreBreakdown($lostItem, $foundItem);
+
                 $foundItem->setAttribute('match_score', $breakdown['total']);
                 $foundItem->setAttribute('match_breakdown', $breakdown);
 
