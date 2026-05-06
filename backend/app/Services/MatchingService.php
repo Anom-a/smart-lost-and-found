@@ -18,6 +18,8 @@ use Illuminate\Support\Str;
  *
  * Handles the logic for matching lost items with potentially matching found items
  * using weighted signals like categories, keywords, dates, and locations.
+ *
+ * @note Consider implementing a caching layer for high-volume matching requests.
  */
 class MatchingService
 {
