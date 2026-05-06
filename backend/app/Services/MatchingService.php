@@ -68,6 +68,7 @@ class MatchingService
      */
     public function scoreBreakdown(LostItem $lostItem, FoundItem $foundItem): array
     {
+        // Gather raw scores for each individual signal
         $scores = [
             'category' => $this->categoryScore($lostItem, $foundItem),
             'keyword' => $this->keywordScore($lostItem, $foundItem),
@@ -75,6 +76,7 @@ class MatchingService
             'location' => $this->locationScore($lostItem, $foundItem),
         ];
 
+        // Apply weights from configuration and calculate the weighted total
         $total = collect($scores)
             ->map(fn (float $score, string $signal): float => $score * $this->weight($signal))
             ->sum();
