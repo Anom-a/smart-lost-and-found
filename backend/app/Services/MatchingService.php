@@ -118,6 +118,13 @@ class MatchingService
         return count($union) === 0 ? 0.0 : round(count($intersection) / count($union), 4);
     }
 
+    /**
+     * Calculate score based on date proximity using exponential decay.
+     *
+     * @param  LostItem  $lostItem
+     * @param  FoundItem  $foundItem
+     * @return float
+     */
     public function dateScore(LostItem $lostItem, FoundItem $foundItem): float
     {
         if (! $lostItem->lost_at || ! $foundItem->found_at) {
@@ -129,6 +136,13 @@ class MatchingService
         return round(exp(-$daysDiff / 7), 4);
     }
 
+    /**
+     * Calculate score based on location similarity using string matching.
+     *
+     * @param  LostItem  $lostItem
+     * @param  FoundItem  $foundItem
+     * @return float
+     */
     public function locationScore(LostItem $lostItem, FoundItem $foundItem): float
     {
         $lostLocation = $this->normalizeText($lostItem->lost_location);
