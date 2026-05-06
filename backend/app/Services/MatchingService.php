@@ -1,4 +1,10 @@
 <?php
+/**
+ * Smart Lost and Found System
+ *
+ * @package App\Services
+ * @author  System Developer
+ */
 
 namespace App\Services;
 
