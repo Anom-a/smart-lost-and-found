@@ -13,6 +13,12 @@ use App\Models\LostItem;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
+/**
+ * Class MatchingService
+ *
+ * Handles the logic for matching lost items with potentially matching found items
+ * using weighted signals like categories, keywords, dates, and locations.
+ */
 class MatchingService
 {
     public function findMatchesForLostItem(LostItem $lostItem, int $limit = 10): Collection
