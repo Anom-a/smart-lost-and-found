@@ -84,11 +84,25 @@ class MatchingService
         ]);
     }
 
+    /**
+     * Calculate score based on whether items belong to the same category.
+     *
+     * @param  LostItem  $lostItem
+     * @param  FoundItem  $foundItem
+     * @return float
+     */
     public function categoryScore(LostItem $lostItem, FoundItem $foundItem): float
     {
         return (int) $lostItem->item_category_id === (int) $foundItem->item_category_id ? 1.0 : 0.0;
     }
 
+    /**
+     * Calculate score based on keyword overlap using Jaccard similarity.
+     *
+     * @param  LostItem  $lostItem
+     * @param  FoundItem  $foundItem
+     * @return float
+     */
     public function keywordScore(LostItem $lostItem, FoundItem $foundItem): float
     {
         $lostKeywords = $this->keywords($lostItem->keywords ?? []);
