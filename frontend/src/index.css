@@ -8,8 +8,7 @@ html, body, #root {
 
 body {
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: #faf8ff;
-  color: #191b23;
+  @apply bg-[#faf8ff] text-[#191b23] dark:bg-gray-900 dark:text-white;
   margin: 0;
 }
 
