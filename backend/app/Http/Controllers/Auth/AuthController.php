@@ -17,7 +17,7 @@ class AuthController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'email' => ['required', 'string', 'email:rfc', 'max:255', 'unique:users,email'],
-            'student_id' => ['required', 'string', 'alpha_dash', 'min:3', 'max:50', 'unique:users,student_id'],
+            'student_id' => ['required', 'string', 'min:3', 'max:50', 'unique:users,student_id'],
             'phone' => ['nullable', 'string', 'max:30'],
             'profile_photo_path' => ['nullable', 'string', 'max:2048'],
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
