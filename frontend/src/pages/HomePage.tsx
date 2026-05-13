@@ -5,7 +5,6 @@ import {
   ArrowRight,
   BadgeCheck,
   BellRing,
-  CheckCircle2,
   ClipboardList,
   Database,
   Filter,
@@ -32,6 +31,7 @@ import { useCategories } from '../hooks/useCategories'
 import { fetchFoundItems, fetchLostItems } from '../lib/apiData'
 import { useAuth } from '../hooks/useAuth'
 import type { Item, ItemType } from '../types/models'
+import heroImage from '../assets/hero.png'
 
 const fallbackCategories = ['Electronics', 'IDs', 'Bags', 'Keys', 'Documents', 'Pets']
 
@@ -53,30 +53,30 @@ const statusCopy: Record<Item['status'], string> = {
 
 const statusStyles: Record<Item['status'], string> = {
   open: 'bg-[#ffdbce] text-[#7f2b00]',
-  available: 'bg-[#dbe1ff] text-[#003dab]',
-  claimed: 'bg-[#e2e1ed] text-[#434654]',
-  closed: 'bg-[#85f8c4] text-[#005137]',
+  available: 'bg-[#dbe5df] text-[#0d4237]',
+  claimed: 'bg-[#e9e2d4] text-[#4d5753]',
+  closed: 'bg-[#f4c66a] text-[#13201c]',
 }
 
 const processSteps = [
   {
     title: 'Report',
-    description: 'Share item details, photos, timing, and the last known location.',
+    description: 'Add details and a photo.',
     icon: ClipboardList,
   },
   {
     title: 'Match',
-    description: 'Guardian Logic compares reports and highlights strong candidates.',
+    description: 'Compare likely pairs.',
     icon: PackageSearch,
   },
   {
     title: 'Verify',
-    description: 'Ownership proof and identity checks keep claims controlled.',
+    description: 'Check ownership proof.',
     icon: ShieldCheck,
   },
   {
     title: 'Reclaim',
-    description: 'Meet safely, close the report, and notify everyone involved.',
+    description: 'Return and close.',
     icon: Handshake,
   },
 ]
@@ -106,10 +106,10 @@ function EmptyImage({ category, type }: { category: string; type: ItemType }) {
   const Icon = categoryIcon(category)
 
   return (
-    <div className="relative flex h-48 items-center justify-center overflow-hidden bg-[#ededf8]">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(26,86,219,0.18),transparent_28%),radial-gradient(circle_at_78%_70%,rgba(0,108,74,0.16),transparent_24%)]" />
-      <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/90 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-        <Icon className={type === 'lost' ? 'h-9 w-9 text-[#ac3c00]' : 'h-9 w-9 text-[#003fb1]'} />
+    <div className="relative flex h-48 items-center justify-center overflow-hidden bg-[#dfe7e2]">
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(13,66,55,0.12),transparent_45%),linear-gradient(45deg,transparent_55%,rgba(244,198,106,0.32))]" />
+      <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-white/90 shadow-[0_12px_28px_rgba(39,43,38,0.12)]">
+        <Icon className={type === 'lost' ? 'h-9 w-9 text-[#ac3c00]' : 'h-9 w-9 text-[#0d4237]'} />
       </div>
     </div>
   )
@@ -117,27 +117,26 @@ function EmptyImage({ category, type }: { category: string; type: ItemType }) {
 
 function LandingItemCard({ item }: { item: Item }) {
   return (
-    <article className="group overflow-hidden rounded-lg border border-[#c3c5d7] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
+    <article className="group overflow-hidden rounded-2xl border border-[#d7d0c2] bg-white shadow-[0_12px_28px_rgba(39,43,38,0.08)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_38px_rgba(39,43,38,0.12)]">
       <div className="relative">
         {item.imageUrl ? (
           <img src={item.imageUrl} alt={item.title} className="h-48 w-full object-cover" />
         ) : (
           <EmptyImage category={item.category} type={item.type} />
         )}
-        <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${statusStyles[item.status]}`}>
+        <span className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold uppercase ${statusStyles[item.status]}`}>
           {statusCopy[item.status]}
         </span>
       </div>
       <div className="p-5">
-        <p className="flex items-center gap-1.5 text-xs font-semibold text-[#003fb1]">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-[#0d4237]">
           <Tag className="h-3.5 w-3.5" />
           {item.category}
         </p>
-        <h3 className="mt-2 line-clamp-1 text-[20px] font-semibold leading-7 text-[#191b23]">{item.title}</h3>
-        <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#434654]">{item.description}</p>
-        <div className="mt-4 space-y-2 text-sm text-[#434654]">
+        <h3 className="mt-2 line-clamp-1 text-[20px] font-semibold leading-7 text-[#13201c]">{item.title}</h3>
+        <div className="mt-4 space-y-2 text-sm text-[#4d5753]">
           <p className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-[#006c4a]" />
+            <MapPin className="h-4 w-4 text-[#0d4237]" />
             {item.location}
           </p>
           <p className="flex items-center gap-2">
@@ -147,7 +146,7 @@ function LandingItemCard({ item }: { item: Item }) {
         </div>
         <Link
           to={itemDetailPath(item)}
-          className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-md border border-[#c3c5d7] text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]"
+          className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-[#d7d0c2] text-sm font-semibold text-[#0d4237] transition hover:border-[#0d4237] hover:bg-[#eef6f2]"
         >
           View details
           <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
@@ -178,94 +177,93 @@ export function HomePage() {
   const recentItem = allItems[0]
 
   return (
-    <main className="min-h-screen bg-[#faf8ff] text-[#191b23]">
-      <header className="sticky top-0 z-30 border-b border-[#e2e1ed]/80 bg-white/90 backdrop-blur">
+    <main className="min-h-screen bg-[#f7f4ee] text-[#191b23]">
+      <header className="sticky top-0 z-30 border-b border-black/10 bg-[#f7f4ee]/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="text-lg font-bold tracking-tight text-[#003fb1]">
+          <Link to="/" className="text-lg font-bold text-[#0d4237]">
             FoundTrust
           </Link>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-[#434654] md:flex">
-            <a href="#feed" className="hover:text-[#003fb1]">Browse items</a>
-            <a href="#process" className="hover:text-[#003fb1]">How it works</a>
-            <a href="#trust" className="hover:text-[#003fb1]">Safety guide</a>
-            <a href="#impact" className="hover:text-[#003fb1]">Community</a>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-[#3f4845] md:flex">
+            <a href="#feed" className="hover:text-[#0d4237]">Items</a>
+            <a href="#process" className="hover:text-[#0d4237]">Steps</a>
+            <a href="#trust" className="hover:text-[#0d4237]">Safety</a>
+            <a href="#impact" className="hover:text-[#0d4237]">Map</a>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
-            <Link to={isAuthenticated ? '/dashboard' : '/login'} className="text-sm font-semibold text-[#434654] hover:text-[#003fb1]">
+            <Link to={isAuthenticated ? '/dashboard' : '/login'} className="text-sm font-semibold text-[#3f4845] hover:text-[#0d4237]">
               {isAuthenticated ? 'Dashboard' : 'Sign in'}
             </Link>
-            <Link to="/lost-items/new" className="inline-flex h-11 items-center justify-center rounded-md bg-[#003fb1] px-4 text-sm font-semibold text-white shadow-[0_4px_12px_rgba(0,63,177,0.2)] hover:bg-[#1a56db]">
+            <Link to="/lost-items/new" className="inline-flex h-11 items-center justify-center rounded-full bg-[#0d4237] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(13,66,55,0.22)] hover:bg-[#145c4d]">
               Report item
             </Link>
           </div>
           <button
             type="button"
             onClick={() => setMobileNavOpen((open) => !open)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-[#c3c5d7] text-[#003fb1] md:hidden"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/15 text-[#0d4237] md:hidden"
             aria-label="Toggle navigation"
           >
             {mobileNavOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
         {mobileNavOpen ? (
-          <div className="border-t border-[#e2e1ed] bg-white px-4 py-4 md:hidden">
-            <div className="grid gap-3 text-sm font-semibold text-[#434654]">
-              <a href="#feed" onClick={() => setMobileNavOpen(false)}>Browse items</a>
-              <a href="#process" onClick={() => setMobileNavOpen(false)}>How it works</a>
-              <a href="#trust" onClick={() => setMobileNavOpen(false)}>Safety guide</a>
+          <div className="border-t border-black/10 bg-[#f7f4ee] px-4 py-4 md:hidden">
+            <div className="grid gap-3 text-sm font-semibold text-[#3f4845]">
+              <a href="#feed" onClick={() => setMobileNavOpen(false)}>Items</a>
+              <a href="#process" onClick={() => setMobileNavOpen(false)}>Steps</a>
+              <a href="#trust" onClick={() => setMobileNavOpen(false)}>Safety</a>
               <Link to={isAuthenticated ? '/dashboard' : '/login'}>{isAuthenticated ? 'Dashboard' : 'Sign in'}</Link>
             </div>
           </div>
         ) : null}
       </header>
 
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,#faf8ff_0%,#faf8ff_48%,#eaf7f1_100%)]" />
-        <div className="relative mx-auto grid max-w-[1280px] gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.04fr_0.96fr] lg:px-8 lg:py-24">
+      <section className="relative overflow-hidden bg-[#f7f4ee]">
+        <div className="relative mx-auto grid max-w-[1280px] gap-10 px-4 pb-12 pt-14 sm:px-6 lg:grid-cols-[0.9fr_1.1fr] lg:px-8 lg:pb-20 lg:pt-20">
           <div className="flex flex-col justify-center">
-            <p className="inline-flex w-fit items-center gap-2 rounded-full bg-white px-3 py-1 text-sm font-semibold text-[#006c4a] shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
+            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-[#cdd8d4] bg-white/70 px-3 py-1 text-sm font-semibold text-[#0d4237] shadow-[0_8px_22px_rgba(38,52,48,0.08)]">
               <ShieldCheck className="h-4 w-4" />
-              Digital reliability for lost and found
+              Smart lost and found
             </p>
-            <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-[1.12] tracking-[-0.02em] text-[#191b23] sm:text-5xl lg:text-6xl">
-              Find What&apos;s Lost. <span className="text-[#003fb1]">Return What&apos;s Found.</span>
+            <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-[1.05] text-[#13201c] sm:text-5xl lg:text-6xl">
+              Find lost items faster.
             </h1>
-            <p className="mt-5 max-w-2xl text-lg leading-7 text-[#434654]">
-              A secure community platform that helps people report lost items, search found property, and verify safe handoffs with less stress.
+            <p className="mt-5 max-w-xl text-lg leading-7 text-[#4d5753]">
+              Report, match, and return belongings with a cleaner community workflow.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link to="/lost-items/new" className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#003fb1] px-5 text-sm font-semibold text-white shadow-[0_8px_24px_rgba(0,63,177,0.2)] hover:bg-[#1a56db]">
+              <Link to="/lost-items/new" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#0d4237] px-6 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(13,66,55,0.24)] hover:bg-[#145c4d]">
                 <PackageSearch className="h-4 w-4" />
                 Report lost item
               </Link>
               <a
                 href="#feed"
                 onClick={() => setFeedType('found')}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-md border border-[#c3c5d7] bg-white px-5 text-sm font-semibold text-[#003fb1] hover:border-[#003fb1]"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[#bccac6] bg-white px-6 text-sm font-semibold text-[#0d4237] hover:border-[#0d4237]"
               >
                 <Search className="h-4 w-4" />
-                Browse found items
+                Browse items
               </a>
             </div>
 
             <form
-              className="mt-10 grid gap-3 rounded-lg bg-white p-3 shadow-[0_8px_24px_rgba(0,0,0,0.08)] sm:grid-cols-[1fr_auto_auto]"
+              className="mt-10 grid gap-3 rounded-2xl border border-[#e0d9cb] bg-white p-3 shadow-[0_16px_44px_rgba(39,43,38,0.1)] sm:grid-cols-[1fr_auto_auto]"
               onSubmit={(event) => {
                 event.preventDefault()
                 document.getElementById('feed')?.scrollIntoView({ behavior: 'smooth' })
               }}
             >
-              <label className="flex h-12 items-center gap-3 rounded-md border border-transparent bg-[#faf8ff] px-4 focus-within:border-[#003fb1]">
-                <Search className="h-4 w-4 text-[#737686]" />
+              <label className="flex h-12 items-center gap-3 rounded-xl border border-transparent bg-[#f7f4ee] px-4 focus-within:border-[#0d4237]">
+                <Search className="h-4 w-4 text-[#6d7672]" />
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
                   placeholder="What did you lose?"
-                  className="w-full bg-transparent text-sm text-[#191b23] outline-none placeholder:text-[#737686]"
+                  className="w-full bg-transparent text-sm text-[#191b23] outline-none placeholder:text-[#6d7672]"
                 />
               </label>
-              <label className="flex h-12 items-center gap-3 rounded-md border border-[#e2e1ed] bg-white px-4 text-sm text-[#434654]">
-                <SlidersHorizontal className="h-4 w-4 text-[#737686]" />
+              <label className="flex h-12 items-center gap-3 rounded-xl border border-[#e0d9cb] bg-white px-4 text-sm text-[#3f4845]">
+                <SlidersHorizontal className="h-4 w-4 text-[#6d7672]" />
                 <select value={category} onChange={(event) => setCategory(event.target.value)} className="bg-transparent outline-none">
                   <option>All</option>
                   {categoryNames.map((name) => (
@@ -273,81 +271,68 @@ export function HomePage() {
                   ))}
                 </select>
               </label>
-              <button type="submit" className="inline-flex h-12 items-center justify-center rounded-md bg-[#003fb1] px-6 text-sm font-semibold text-white hover:bg-[#1a56db]">
+              <button type="submit" className="inline-flex h-12 items-center justify-center rounded-xl bg-[#0d4237] px-6 text-sm font-semibold text-white hover:bg-[#145c4d]">
                 Search
               </button>
             </form>
           </div>
 
-          <div className="relative min-h-[420px]">
-            <div className="absolute left-4 top-8 h-56 w-56 rounded-full bg-[#85f8c4]/35 blur-3xl" />
-            <div className="absolute bottom-8 right-2 h-64 w-64 rounded-full bg-[#b5c4ff]/45 blur-3xl" />
-            <div className="relative ml-auto max-w-xl rounded-lg border border-[#c3c5d7] bg-white p-4 shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-              <div className="rounded-md bg-[#ededf8] p-4">
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {(allItems.length ? allItems.slice(0, 4) : []).map((item) => (
-                    <div key={`${item.type}-${item.id}`} className="rounded-md bg-white p-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                      <p className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-[#737686]">
-                        {item.type}
-                        <span className={item.type === 'lost' ? 'text-[#842c00]' : 'text-[#006c4a]'}>{item.category}</span>
-                      </p>
-                      <p className="mt-3 line-clamp-1 font-semibold text-[#191b23]">{item.title}</p>
-                      <p className="mt-1 flex items-center gap-1.5 text-sm text-[#434654]">
-                        <MapPin className="h-3.5 w-3.5" />
-                        {item.location}
-                      </p>
-                    </div>
-                  ))}
-                  {!allItems.length ? (
-                    <>
-                      <div className="rounded-md bg-white p-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-[#737686]">Ready for reports</p>
-                        <p className="mt-3 font-semibold text-[#191b23]">Live item cards appear here</p>
-                        <p className="mt-1 text-sm text-[#434654]">Connected to the public item APIs.</p>
-                      </div>
-                      <div className="rounded-md bg-white p-4 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-[#737686]">Guardian Logic</p>
-                        <p className="mt-3 font-semibold text-[#191b23]">Matching pipeline active</p>
-                        <p className="mt-1 text-sm text-[#434654]">Reports are compared as they arrive.</p>
-                      </div>
-                    </>
-                  ) : null}
+          <div className="relative min-h-[460px]">
+            <div className="absolute inset-x-4 bottom-0 top-8 rounded-[32px] bg-[#13352d]" />
+            <div className="absolute right-0 top-0 h-[72%] w-[82%] overflow-hidden rounded-[32px] bg-[#cfe0d8] shadow-[0_24px_60px_rgba(28,38,33,0.24)]">
+              {recentItem?.imageUrl ? (
+                <img src={recentItem.imageUrl} alt={recentItem.title} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-[#dfe7e2]">
+                  <img src={heroImage} alt="" className="h-56 w-56 object-contain opacity-95" />
                 </div>
-              </div>
-              <div className="mt-4 grid gap-3 rounded-md border border-[#e2e1ed] bg-[#faf8ff] p-4 sm:grid-cols-[1fr_auto_1fr]">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#737686]">Lost report</p>
-                  <p className="mt-1 font-semibold text-[#191b23]">{lostItems.data?.[0]?.title ?? 'Waiting for lost item'}</p>
-                </div>
-                <div className="flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-[#003fb1]" />
-                </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-[#737686]">Found candidate</p>
-                  <p className="mt-1 font-semibold text-[#191b23]">{foundItems.data?.[0]?.title ?? 'Waiting for found item'}</p>
-                </div>
-              </div>
+              )}
+            </div>
+            <div className="absolute bottom-8 left-0 max-w-[320px] rounded-2xl border border-white/60 bg-white/90 p-5 shadow-[0_18px_44px_rgba(28,38,33,0.18)] backdrop-blur">
+              <p className="text-xs font-semibold uppercase text-[#6d7672]">Latest report</p>
+              <h2 className="mt-2 line-clamp-1 text-xl font-semibold text-[#13201c]">{recentItem?.title ?? 'Ready for reports'}</h2>
+              <p className="mt-2 flex items-center gap-2 text-sm text-[#4d5753]">
+                <MapPin className="h-4 w-4 text-[#0d4237]" />
+                {recentItem?.location ?? 'Community coverage'}
+              </p>
+            </div>
+            <div className="absolute right-6 top-10 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0d4237] shadow-[0_14px_34px_rgba(28,38,33,0.16)]">
+              <Sparkles className="h-4 w-4" />
+              {activeReports} active
+            </div>
+            <div className="absolute bottom-10 right-10 rounded-2xl bg-[#f4c66a] px-5 py-4 text-[#13201c] shadow-[0_16px_36px_rgba(28,38,33,0.18)]">
+              <p className="text-2xl font-bold">{returnedCount || 'New'}</p>
+              <p className="text-xs font-semibold uppercase">returned</p>
             </div>
           </div>
+        </div>
+        <div className="mx-auto grid max-w-[1280px] gap-3 px-4 pb-12 sm:grid-cols-3 sm:px-6 lg:px-8">
+          {[
+            ['Report', 'Add photo and place'],
+            ['Match', 'Spot likely finds'],
+            ['Return', 'Close the loop'],
+          ].map(([title, label]) => (
+            <div key={title} className="rounded-2xl border border-[#e0d9cb] bg-white/70 p-4">
+              <p className="font-semibold text-[#13201c]">{title}</p>
+              <p className="mt-1 text-sm text-[#5d6762]">{label}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section id="feed" className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-[#003fb1]">Live item feed</p>
-            <h2 className="mt-2 text-2xl font-semibold tracking-[-0.01em] text-[#191b23]">Real-time reports from your community</h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#434654]">
-              Search and filter reports from the backend. Switch between lost and found items without leaving the page.
-            </p>
+            <p className="text-sm font-semibold uppercase text-[#0d4237]">Live feed</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#13201c]">Recent community reports</h2>
           </div>
-          <div className="flex w-fit rounded-md border border-[#c3c5d7] bg-white p-1">
+          <div className="flex w-fit rounded-full border border-[#d7d0c2] bg-white p-1">
             {(['found', 'lost'] as ItemType[]).map((type) => (
               <button
                 key={type}
                 type="button"
                 onClick={() => setFeedType(type)}
-                className={`h-10 rounded px-4 text-sm font-semibold capitalize transition ${feedType === type ? 'bg-[#003fb1] text-white' : 'text-[#434654] hover:bg-[#f3f3fe]'}`}
+                className={`h-10 rounded-full px-4 text-sm font-semibold capitalize transition ${feedType === type ? 'bg-[#0d4237] text-white' : 'text-[#3f4845] hover:bg-[#f7f4ee]'}`}
               >
                 {type} items
               </button>
@@ -359,7 +344,7 @@ export function HomePage() {
           <button
             type="button"
             onClick={() => setCategory('All')}
-            className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-semibold ${category === 'All' ? 'bg-[#003fb1] text-white' : 'border border-[#c3c5d7] bg-white text-[#434654]'}`}
+            className={`inline-flex h-9 items-center gap-2 rounded-full px-4 text-sm font-semibold ${category === 'All' ? 'bg-[#0d4237] text-white' : 'border border-[#d7d0c2] bg-white text-[#3f4845]'}`}
           >
             <Filter className="h-3.5 w-3.5" />
             All
@@ -369,7 +354,7 @@ export function HomePage() {
               key={name}
               type="button"
               onClick={() => setCategory(name)}
-              className={`h-9 rounded-full px-4 text-sm font-semibold transition ${category === name ? 'bg-[#003fb1] text-white' : 'border border-[#c3c5d7] bg-white text-[#434654] hover:border-[#003fb1]'}`}
+              className={`h-9 rounded-full px-4 text-sm font-semibold transition ${category === name ? 'bg-[#0d4237] text-white' : 'border border-[#d7d0c2] bg-white text-[#3f4845] hover:border-[#0d4237]'}`}
             >
               {name}
             </button>
@@ -377,8 +362,8 @@ export function HomePage() {
         </div>
 
         {loadingItems ? (
-          <div className="mt-10 flex items-center gap-3 rounded-lg border border-[#c3c5d7] bg-white p-6 text-[#434654]">
-            <Loader2 className="h-5 w-5 animate-spin text-[#003fb1]" />
+          <div className="mt-10 flex items-center gap-3 rounded-2xl border border-[#d7d0c2] bg-white p-6 text-[#3f4845]">
+            <Loader2 className="h-5 w-5 animate-spin text-[#0d4237]" />
             Loading live reports...
           </div>
         ) : filteredItems.length ? (
@@ -388,21 +373,17 @@ export function HomePage() {
             ))}
           </div>
         ) : (
-          <div className="mt-10 rounded-lg border border-[#c3c5d7] bg-white p-8 text-center shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-            <Database className="mx-auto h-8 w-8 text-[#003fb1]" />
-            <h3 className="mt-4 text-xl font-semibold text-[#191b23]">No matching reports yet</h3>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-[#434654]">
-              The page is connected to real item data. Try another filter, or create the first report for this category.
-            </p>
+          <div className="mt-10 rounded-2xl border border-[#d7d0c2] bg-white p-8 text-center shadow-[0_12px_28px_rgba(39,43,38,0.08)]">
+            <Database className="mx-auto h-8 w-8 text-[#0d4237]" />
+            <h3 className="mt-4 text-xl font-semibold text-[#13201c]">No matches yet</h3>
           </div>
         )}
       </section>
 
-      <section id="process" className="border-y border-[#e2e1ed] bg-white py-16">
+      <section id="process" className="border-y border-[#e0d9cb] bg-white py-16">
         <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-2xl font-semibold tracking-[-0.01em] text-[#191b23]">How it works</h2>
-            <p className="mt-3 text-sm leading-6 text-[#434654]">A secure journey from missing report to verified return.</p>
+            <h2 className="text-2xl font-semibold text-[#13201c]">How it works</h2>
           </div>
           <div className="mt-10 grid gap-5 lg:grid-cols-4">
             {processSteps.map((step, index) => {
@@ -414,14 +395,14 @@ export function HomePage() {
                   key={step.title}
                   type="button"
                   onClick={() => setActiveStep(index)}
-                  className={`rounded-lg border p-6 text-left transition hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] ${selected ? 'border-[#003fb1] bg-[#f3f3fe]' : 'border-[#c3c5d7] bg-white'}`}
+                  className={`rounded-2xl border p-6 text-left transition hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(39,43,38,0.1)] ${selected ? 'border-[#0d4237] bg-[#eef6f2]' : 'border-[#d7d0c2] bg-white'}`}
                 >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#003fb1] text-white">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0d4237] text-white">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <p className="mt-5 text-sm font-semibold text-[#737686]">Step {index + 1}</p>
-                  <h3 className="mt-1 text-lg font-semibold text-[#191b23]">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#434654]">{step.description}</p>
+                  <p className="mt-5 text-sm font-semibold text-[#6d7672]">Step {index + 1}</p>
+                  <h3 className="mt-1 text-lg font-semibold text-[#13201c]">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-[#4d5753]">{step.description}</p>
                 </button>
               )
             })}
@@ -429,27 +410,22 @@ export function HomePage() {
         </div>
       </section>
 
-      <section id="trust" className="bg-[#e2e1ed] py-16">
+      <section id="trust" className="bg-[#13201c] py-16 text-white">
         <div className="mx-auto grid max-w-[1280px] gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_0.9fr] lg:px-8">
           <div>
-            <h2 className="text-2xl font-semibold tracking-[-0.01em] text-[#191b23]">
-              Built on Trust and <span className="text-[#003fb1]">Reliability.</span>
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm leading-6 text-[#434654]">
-              Every report is structured for verification, privacy, and safer exchanges. The product feels calm because the process is controlled.
-            </p>
+            <h2 className="text-2xl font-semibold">Safety built in.</h2>
             <div className="mt-8 grid gap-4">
-              <p className="flex gap-3 text-sm text-[#434654]">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#85f8c4] text-[#005137]">
+              <p className="flex gap-3 text-sm text-[#dbe5df]">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f4c66a] text-[#13201c]">
                   <UserCheck className="h-4 w-4" />
                 </span>
-                <span><strong className="text-[#191b23]">Verified meetings.</strong> Suggested public zones and identity checks support safer handoffs.</span>
+                <span><strong className="text-white">Verified meetings.</strong> Safer handoffs.</span>
               </p>
-              <p className="flex gap-3 text-sm text-[#434654]">
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#85f8c4] text-[#005137]">
+              <p className="flex gap-3 text-sm text-[#dbe5df]">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f4c66a] text-[#13201c]">
                   <LockKeyhole className="h-4 w-4" />
                 </span>
-                <span><strong className="text-[#191b23]">Encrypted data.</strong> Contact details stay controlled until claim steps require them.</span>
+                <span><strong className="text-white">Private claims.</strong> Details stay controlled.</span>
               </p>
             </div>
           </div>
@@ -460,9 +436,9 @@ export function HomePage() {
               [categories.data?.length ?? fallbackCategories.length, 'tracked categories'],
               [recentItem ? formatDistanceToNow(new Date(recentItem.date), { addSuffix: true }) : 'Live', 'latest update'],
             ].map(([value, label]) => (
-              <div key={label} className="rounded-lg bg-white p-6 text-center shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-                <p className="text-3xl font-bold tracking-[-0.02em] text-[#003fb1]">{value}</p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-[#737686]">{label}</p>
+              <div key={label} className="rounded-2xl border border-white/10 bg-white/10 p-6 text-center">
+                <p className="text-3xl font-bold text-[#f4c66a]">{value}</p>
+                <p className="mt-2 text-xs font-semibold uppercase text-[#dbe5df]">{label}</p>
               </div>
             ))}
           </div>
@@ -471,31 +447,27 @@ export function HomePage() {
 
       <section id="impact" className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-semibold tracking-[-0.01em] text-[#191b23]">Community impact near you</h2>
-          <p className="mt-3 text-sm leading-6 text-[#434654]">A live location preview of reported items and safer exchange areas.</p>
+          <h2 className="text-2xl font-semibold text-[#13201c]">Community map</h2>
         </div>
-        <div className="relative mt-10 min-h-[360px] overflow-hidden rounded-lg border border-[#c3c5d7] bg-[#d9d9e4] shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
-          <div className="absolute inset-0 opacity-70 [background-image:linear-gradient(30deg,rgba(255,255,255,0.5)_12%,transparent_12.5%,transparent_87%,rgba(255,255,255,0.5)_87.5%,rgba(255,255,255,0.5)),linear-gradient(150deg,rgba(255,255,255,0.5)_12%,transparent_12.5%,transparent_87%,rgba(255,255,255,0.5)_87.5%,rgba(255,255,255,0.5)),linear-gradient(30deg,rgba(255,255,255,0.5)_12%,transparent_12.5%,transparent_87%,rgba(255,255,255,0.5)_87.5%,rgba(255,255,255,0.5)),linear-gradient(150deg,rgba(255,255,255,0.5)_12%,transparent_12.5%,transparent_87%,rgba(255,255,255,0.5)_87.5%,rgba(255,255,255,0.5))] [background-position:0_0,0_0,24px_42px,24px_42px] [background-size:48px_84px]" />
+        <div className="relative mt-10 min-h-[360px] overflow-hidden rounded-[28px] border border-[#d7d0c2] bg-[#dce8e1] shadow-[0_18px_44px_rgba(39,43,38,0.12)]">
+          <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(90deg,rgba(13,66,55,0.08)_1px,transparent_1px),linear-gradient(0deg,rgba(13,66,55,0.08)_1px,transparent_1px)] [background-size:44px_44px]" />
           {(liveLocations.length ? liveLocations : allItems.slice(0, 3)).map((item, index) => (
             <Link
               key={`${item.type}-pin-${item.id}`}
               to={itemDetailPath(item)}
-              className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#191b23] shadow-[0_8px_24px_rgba(0,0,0,0.14)] transition hover:scale-105"
+              className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#13201c] shadow-[0_12px_24px_rgba(39,43,38,0.14)] transition hover:scale-105"
               style={{
                 left: `${18 + ((index * 17) % 66)}%`,
                 top: `${30 + ((index * 19) % 45)}%`,
               }}
             >
-              <MapPin className={item.type === 'lost' ? 'h-4 w-4 text-[#ac3c00]' : 'h-4 w-4 text-[#003fb1]'} />
+              <MapPin className={item.type === 'lost' ? 'h-4 w-4 text-[#ac3c00]' : 'h-4 w-4 text-[#0d4237]'} />
               <span className="hidden sm:inline">{item.location}</span>
             </Link>
           ))}
-          <div className="absolute bottom-6 left-6 max-w-xs rounded-lg bg-white p-5 shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
-            <p className="text-sm font-semibold text-[#191b23]">{liveLocations[0]?.location ?? 'Community coverage'}</p>
-            <p className="mt-1 text-sm leading-5 text-[#434654]">
-              {liveLocations[0] ? `${liveLocations[0].title} was reported in this area.` : 'Reported item clusters will appear as your community adds data.'}
-            </p>
-            <a href="#feed" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#003fb1]">
+          <div className="absolute bottom-6 left-6 max-w-xs rounded-2xl bg-white p-5 shadow-[0_14px_32px_rgba(39,43,38,0.16)]">
+            <p className="text-sm font-semibold text-[#13201c]">{liveLocations[0]?.location ?? 'Community coverage'}</p>
+            <a href="#feed" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#0d4237]">
               View local feed
               <ArrowRight className="h-4 w-4" />
             </a>
@@ -503,50 +475,45 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="bg-[#003fb1] py-16 text-white">
+      <section className="bg-[#f4c66a] py-16 text-[#13201c]">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
-          <CheckCircle2 className="mx-auto h-10 w-10 text-[#85f8c4]" />
-          <h2 className="mt-5 text-3xl font-bold tracking-[-0.02em]">Don&apos;t lose hope. Start your search now.</h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-[#d4dcff]">
-            Join your community in returning valuable belongings through a calmer, safer, and more reliable process.
-          </p>
+          <h2 className="text-3xl font-bold">Start your search now.</h2>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Link to="/lost-items/new" className="inline-flex h-12 items-center justify-center rounded-md bg-white px-6 text-sm font-semibold text-[#003fb1] hover:bg-[#f3f3fe]">
+            <Link to="/lost-items/new" className="inline-flex h-12 items-center justify-center rounded-full bg-[#13201c] px-6 text-sm font-semibold text-white hover:bg-[#0d4237]">
               Report your item
             </Link>
             <a
               href="#feed"
               onClick={() => setFeedType('found')}
-              className="inline-flex h-12 items-center justify-center rounded-md border border-white px-6 text-sm font-semibold text-white hover:bg-white/10"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-[#13201c] px-6 text-sm font-semibold text-[#13201c] hover:bg-white/30"
             >
-              Search database
+              Search items
             </a>
           </div>
         </div>
       </section>
 
-      <footer className="bg-[#faf8ff] py-10">
-        <div className="mx-auto grid max-w-[1280px] gap-8 px-4 text-sm text-[#434654] sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
+      <footer className="bg-[#f7f4ee] py-10">
+        <div className="mx-auto grid max-w-[1280px] gap-8 px-4 text-sm text-[#3f4845] sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
           <div>
-            <Link to="/" className="font-bold text-[#191b23]">FoundTrust</Link>
-            <p className="mt-3 max-w-sm leading-6">The digital standard for secure, community-driven lost and found services.</p>
+            <Link to="/" className="font-bold text-[#13201c]">FoundTrust</Link>
           </div>
           <div>
-            <p className="font-semibold text-[#191b23]">Platform</p>
+            <p className="font-semibold text-[#13201c]">Platform</p>
             <div className="mt-3 grid gap-2">
-              <a href="#feed">Browse items</a>
-              <a href="#process">How it works</a>
+              <a href="#feed">Items</a>
+              <a href="#process">Steps</a>
             </div>
           </div>
           <div>
-            <p className="font-semibold text-[#191b23]">Company</p>
+            <p className="font-semibold text-[#13201c]">Company</p>
             <div className="mt-3 grid gap-2">
               <a href="#trust">Safety</a>
-              <a href="#impact">Community</a>
+              <a href="#impact">Map</a>
             </div>
           </div>
           <div>
-            <p className="font-semibold text-[#191b23]">Legal</p>
+            <p className="font-semibold text-[#13201c]">Legal</p>
             <div className="mt-3 grid gap-2">
               <span>Terms of service</span>
               <span>Privacy policy</span>
