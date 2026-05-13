@@ -17,7 +17,8 @@ export function Navbar() {
   })
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex w-full items-center justify-between gap-4">
+      <Link to="/dashboard" className="text-lg font-bold text-[#003fb1] dark:text-blue-400 lg:hidden">FoundTrust</Link>
       <label className="hidden h-12 max-w-2xl flex-1 items-center gap-3 rounded-full bg-[#f3f3fe] dark:bg-gray-800 px-5 text-[#737686] dark:text-gray-400 shadow-[0_4px_12px_rgba(0,0,0,0.04)] md:flex">
         <Search className="h-5 w-5" />
         <input
@@ -28,7 +29,6 @@ export function Navbar() {
       </label>
 
       <div className="flex items-center gap-3">
-        <Link to="/dashboard" className="text-lg font-bold text-[#003fb1] dark:text-blue-400 lg:hidden">FoundTrust</Link>
         <button
           onClick={toggleTheme}
           className="flex h-10 w-10 items-center justify-center rounded-full text-[#191b23] dark:text-white transition hover:bg-[#f3f3fe] dark:hover:bg-gray-800"

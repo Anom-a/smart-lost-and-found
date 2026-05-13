@@ -38,7 +38,7 @@ export function Sidebar() {
       </nav>
       <NavLink
         to="/lost-items/new"
-        className="mt-auto flex h-12 items-center justify-center gap-2 rounded-lg bg-[#003fb1] px-4 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(0,63,177,0.2)] transition hover:bg-[#1a56db]"
+        className="mt-6 flex h-12 items-center justify-center gap-2 rounded-lg bg-[#003fb1] px-4 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(0,63,177,0.2)] transition hover:bg-[#1a56db]"
       >
         <Plus className="h-5 w-5" />
         Report New Item

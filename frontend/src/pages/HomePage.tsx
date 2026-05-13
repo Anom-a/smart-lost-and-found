@@ -173,7 +173,6 @@ export function HomePage() {
   const loadingItems = lostItems.isLoading || foundItems.isLoading
   const returnedCount = allItems.filter((item) => item.status === 'closed').length
   const activeReports = allItems.filter((item) => item.status === 'open' || item.status === 'available').length
-  const liveLocations = allItems.filter((item) => item.location && item.location !== 'Not specified').slice(0, 5)
   const recentItem = allItems[0]
 
   return (
@@ -187,7 +186,6 @@ export function HomePage() {
             <a href="#feed" className="hover:text-[#0d4237]">Items</a>
             <a href="#process" className="hover:text-[#0d4237]">Steps</a>
             <a href="#trust" className="hover:text-[#0d4237]">Safety</a>
-            <a href="#impact" className="hover:text-[#0d4237]">Map</a>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             <Link to={isAuthenticated ? '/dashboard' : '/login'} className="text-sm font-semibold text-[#3f4845] hover:text-[#0d4237]">
@@ -445,36 +443,6 @@ export function HomePage() {
         </div>
       </section>
 
-      <section id="impact" className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-semibold text-[#13201c]">Community map</h2>
-        </div>
-        <div className="relative mt-10 min-h-[360px] overflow-hidden rounded-[28px] border border-[#d7d0c2] bg-[#dce8e1] shadow-[0_18px_44px_rgba(39,43,38,0.12)]">
-          <div className="absolute inset-0 opacity-80 [background-image:linear-gradient(90deg,rgba(13,66,55,0.08)_1px,transparent_1px),linear-gradient(0deg,rgba(13,66,55,0.08)_1px,transparent_1px)] [background-size:44px_44px]" />
-          {(liveLocations.length ? liveLocations : allItems.slice(0, 3)).map((item, index) => (
-            <Link
-              key={`${item.type}-pin-${item.id}`}
-              to={itemDetailPath(item)}
-              className="absolute flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-white px-3 py-2 text-xs font-semibold text-[#13201c] shadow-[0_12px_24px_rgba(39,43,38,0.14)] transition hover:scale-105"
-              style={{
-                left: `${18 + ((index * 17) % 66)}%`,
-                top: `${30 + ((index * 19) % 45)}%`,
-              }}
-            >
-              <MapPin className={item.type === 'lost' ? 'h-4 w-4 text-[#ac3c00]' : 'h-4 w-4 text-[#0d4237]'} />
-              <span className="hidden sm:inline">{item.location}</span>
-            </Link>
-          ))}
-          <div className="absolute bottom-6 left-6 max-w-xs rounded-2xl bg-white p-5 shadow-[0_14px_32px_rgba(39,43,38,0.16)]">
-            <p className="text-sm font-semibold text-[#13201c]">{liveLocations[0]?.location ?? 'Community coverage'}</p>
-            <a href="#feed" className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#0d4237]">
-              View local feed
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </section>
-
       <section className="bg-[#f4c66a] py-16 text-[#13201c]">
         <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
           <h2 className="text-3xl font-bold">Start your search now.</h2>
@@ -509,7 +477,6 @@ export function HomePage() {
             <p className="font-semibold text-[#13201c]">Company</p>
             <div className="mt-3 grid gap-2">
               <a href="#trust">Safety</a>
-              <a href="#impact">Map</a>
             </div>
           </div>
           <div>
