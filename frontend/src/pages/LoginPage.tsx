@@ -141,7 +141,7 @@ export function LoginPage() {
           <span>Terms of Service</span>
           <span>Privacy Policy</span>
           <span>Help Center</span>
-          <span className="basis-full text-[#737686]">© 2024 FoundTrust Digital Reliability System.</span>
+          <span className="basis-full text-[#737686]">© 2026 FoundTrust Digital Reliability System.</span>
         </footer>
       </section>
 
