@@ -1,5 +1,6 @@
-import { api, STORAGE_URL, type ApiResponse } from './api'
+import { api, STORAGE_URL, getClaims, type ApiResponse } from './api'
 import type { AppNotification, AuthUser, Claim, Item, ItemMatch } from '../types/models'
+import type { ClaimRequest } from '../types'
 
 type BackendUser = {
   id: number
@@ -46,6 +47,39 @@ type BackendFoundItem = {
 }
 
 type BackendClaim = {
+  id: number
+  status: Claim['status']
+  proof_message: string
+  created_at: string
+  claimant: {
+    id: number
+    name: string
+    student_id?: string | null
+  }
+  lost_item: {
+    id: number
+    title: string
+    category: string | null
+    location: string | null
+    date_lost: string | null
+    status: string
+  }
+  found_item: {
+    id: number
+    title: string
+    category: string | null
+    location: string | null
+    date_found: string | null
+    status: string
+    reporter: {
+      id: number
+      name: string
+      student_id?: string | null
+    } | null
+  }
+}
+
+type LegacyBackendClaim = {
   id: number
   found_item_id: number
   message: string | null
@@ -164,7 +198,19 @@ function toFoundItem(item: BackendFoundItem): Item {
   }
 }
 
-function toClaim(claim: BackendClaim): Claim {
+function toClaim(claim: LegacyBackendClaim | ClaimRequest): Claim {
+  if ('proof_message' in claim) {
+    return {
+      id: claim.id,
+      itemId: claim.found_item.id,
+      itemType: 'found',
+      claimant: claim.claimant.name,
+      reason: claim.proof_message,
+      status: claim.status,
+      submittedAt: claim.created_at,
+    }
+  }
+
   return {
     id: claim.id,
     itemId: claim.found_item_id,
@@ -240,9 +286,54 @@ export async function fetchFoundItem(id: number) {
 }
 
 export async function fetchClaims() {
-  const response = await api.get<ApiResponse<BackendClaim[]>>('/claims', { params: { per_page: 50 } })
+  const response = await getClaims()
+  const combined = [...response.sent, ...response.received]
+  const seen = new Set<number>()
 
-  return response.data.data.map(toClaim)
+  return combined.filter((claim) => {
+    if (seen.has(claim.id)) {
+      return false
+    }
+
+    seen.add(claim.id)
+    return true
+  }).map(toClaim)
+}
+
+type BackendMatchFoundItem = {
+  id: number
+  title: string
+  found_location: string | null
+  found_at: string | null
+  status: Item['status']
+  match_score?: number
+  created_at: string | null
+  updated_at: string | null
+  user?: BackendUser
+  category?: BackendCategory
+}
+
+export async function fetchLostItemMatches(lostItemId: number) {
+  const response = await api.get<ApiResponse<BackendMatchFoundItem[]>>(`/lost-items/${lostItemId}/matches`)
+
+  return response.data.data.map((foundItem): ItemMatch => ({
+    id: Number(`${lostItemId}${foundItem.id}`),
+    lostItemId,
+    foundItemId: foundItem.id,
+    lostItemTitle: `Lost item #${lostItemId}`,
+    foundItemTitle: foundItem.title,
+    score: foundItem.match_score ?? 0,
+    status: 'pending',
+    createdAt: foundItem.updated_at ?? foundItem.created_at ?? new Date().toISOString(),
+    foundItemReporter: foundItem.user
+      ? {
+          id: foundItem.user.id,
+          name: foundItem.user.name,
+          email: foundItem.user.email,
+          studentId: foundItem.user.student_id,
+        }
+      : undefined,
+  }))
 }
 
 export async function fetchNotifications() {

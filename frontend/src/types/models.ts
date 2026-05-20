@@ -26,6 +26,7 @@ export type ItemMatch = {
   score: number
   status: MatchStatus
   createdAt: string
+  foundItemReporter?: AuthUser
 }
 
 export type ClaimStatus = 'pending' | 'approved' | 'rejected'

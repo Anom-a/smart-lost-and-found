@@ -35,9 +35,9 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::get('/claims', [ClaimController::class, 'index']);
     Route::post('/claims', [ClaimController::class, 'store']);
-    Route::get('/claims/{claim}', [ClaimController::class, 'show']);
-    Route::post('/claims/{claim}/approve', [ClaimController::class, 'approve']);
-    Route::post('/claims/{claim}/reject', [ClaimController::class, 'reject']);
+    Route::get('/claims/{id}', [ClaimController::class, 'show']);
+    Route::patch('/claims/{id}/approve', [ClaimController::class, 'approve']);
+    Route::patch('/claims/{id}/reject', [ClaimController::class, 'reject']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
     Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);

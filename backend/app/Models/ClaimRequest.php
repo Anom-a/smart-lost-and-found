@@ -11,38 +11,25 @@ class ClaimRequest extends Model
     use HasFactory;
 
     protected $fillable = [
-        'claimant_id',
+        'claimant_user_id',
         'lost_item_id',
         'found_item_id',
-        'message',
-        'proof_details',
+        'proof_message',
         'status',
-        'reviewed_at',
-        'reviewed_by',
-    ];
-
-    protected $casts = [
-        'proof_details' => 'array',
-        'reviewed_at' => 'datetime',
     ];
 
     public function claimant(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'claimant_id');
+        return $this->belongsTo(User::class, 'claimant_user_id');
     }
 
     public function lostItem(): BelongsTo
     {
-        return $this->belongsTo(LostItem::class);
+        return $this->belongsTo(LostItem::class, 'lost_item_id');
     }
 
     public function foundItem(): BelongsTo
     {
-        return $this->belongsTo(FoundItem::class);
-    }
-
-    public function reviewer(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
+        return $this->belongsTo(FoundItem::class, 'found_item_id');
     }
 }

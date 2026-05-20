@@ -1,16 +1,65 @@
-import { useQuery } from '@tanstack/react-query'
-import { format } from 'date-fns'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import toast from 'react-hot-toast'
 import { ClipboardCheck } from 'lucide-react'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
 import { LoadingState } from '../components/LoadingState'
-import { fetchClaims } from '../lib/apiData'
+import { ClaimCard } from '../components/claims/ClaimCard'
+import { getApiErrorMessage } from '../lib/api'
+import { approveClaim, getClaims, rejectClaim } from '../lib/api'
+import { useAuth } from '../hooks/useAuth'
+import type { ClaimRequest, ClaimsResponse } from '../types'
 
 export function ClaimsPage() {
-  const { data: claims = [], isLoading, isError } = useQuery({
+  const queryClient = useQueryClient()
+  const { user } = useAuth()
+  const currentUserId = user?.id ?? null
+
+  const { data: claims, isLoading, isError } = useQuery({
     queryKey: ['claims'],
-    queryFn: fetchClaims,
+    queryFn: getClaims,
   })
+
+  const claimMutation = useMutation({
+    mutationFn: async ({ claim, action }: { claim: ClaimRequest; action: 'approve' | 'reject' }) => {
+      return action === 'approve' ? approveClaim(claim.id) : rejectClaim(claim.id)
+    },
+    onMutate: async ({ claim, action }) => {
+      await queryClient.cancelQueries({ queryKey: ['claims'] })
+      const previous = queryClient.getQueryData<ClaimsResponse>(['claims'])
+
+      if (previous) {
+        queryClient.setQueryData<ClaimsResponse>(['claims'], {
+          sent: previous.sent.map((entry) => (entry.id === claim.id ? { ...entry, status: action === 'approve' ? 'approved' : 'rejected' } : entry)),
+          received: previous.received.map((entry) => (entry.id === claim.id ? { ...entry, status: action === 'approve' ? 'approved' : 'rejected' } : entry)),
+        })
+      }
+
+      return { previous }
+    },
+    onError: (error, _variables, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(['claims'], context.previous)
+      }
+
+      toast.error(getApiErrorMessage(error, 'Unable to update claim.'))
+    },
+    onSuccess: (_data, variables) => {
+      toast.success(variables.action === 'approve' ? 'Claim approved.' : 'Claim rejected.')
+      queryClient.invalidateQueries({ queryKey: ['claims'] })
+    },
+  })
+
+  const sentClaims = claims?.sent ?? []
+  const receivedClaims = claims?.received ?? []
+
+  const renderSkeleton = () => (
+    <div className="space-y-4">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} className="h-56 animate-pulse rounded-2xl border border-[#e2e1ed] bg-white" />
+      ))}
+    </div>
+  )
 
   if (isLoading) return <LoadingState message="Loading claims..." />
   if (isError) return <ErrorState description="Unable to load claims from the API." />
@@ -25,18 +74,46 @@ export function ClaimsPage() {
         <h1 className="mt-1 text-3xl font-bold text-[#191b23]">Claims</h1>
         <p className="mt-2 text-[#434654]">Track ownership claims for found items.</p>
       </div>
-      <div className="grid gap-5 md:grid-cols-2">
-        {claims.length > 0 ? claims.map((claim) => (
-          <article key={claim.id} className="rounded-2xl border border-[#e2e1ed] bg-white p-5 shadow-[0_4px_12px_rgba(0,0,0,0.05)]">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="text-lg font-semibold text-[#191b23]">{claim.claimant}</h2>
-              <span className="rounded-full bg-[#f3f3fe] px-3 py-1 text-xs font-semibold uppercase text-[#434654]">{claim.status}</span>
-            </div>
-            <p className="mt-2 text-sm text-[#737686]">Claim #{claim.id} for {claim.itemType} item #{claim.itemId}</p>
-            <p className="mt-4 text-sm leading-6 text-[#434654]">{claim.reason}</p>
-            <p className="mt-4 text-xs font-medium text-[#737686]">Submitted {format(new Date(claim.submittedAt), 'MMM d, yyyy')}</p>
-          </article>
-        )) : <EmptyState title="No claims yet" description="Submitted claims will appear here." />}
+      <div className="space-y-8">
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-2xl font-semibold text-[#191b23]">Claims I Sent [{sentClaims.length}]</h2>
+          </div>
+          {claims ? (
+            sentClaims.length > 0 ? (
+              <div className="space-y-4">
+                {sentClaims.map((claim) => (
+                  <ClaimCard key={claim.id} claim={claim} currentUserId={currentUserId} />
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No sent claims yet" description="Claims you submit will appear here." />
+            )
+          ) : renderSkeleton()}
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-2xl font-semibold text-[#191b23]">Claims I Received [{receivedClaims.length}]</h2>
+          </div>
+          {claims ? (
+            receivedClaims.length > 0 ? (
+              <div className="space-y-4">
+                {receivedClaims.map((claim) => (
+                  <ClaimCard
+                    key={claim.id}
+                    claim={claim}
+                    currentUserId={currentUserId}
+                    onApprove={(selectedClaim) => claimMutation.mutate({ claim: selectedClaim, action: 'approve' })}
+                    onReject={(selectedClaim) => claimMutation.mutate({ claim: selectedClaim, action: 'reject' })}
+                  />
+                ))}
+              </div>
+            ) : (
+              <EmptyState title="No received claims yet" description="Claims on items you reported will appear here." />
+            )
+          ) : renderSkeleton()}
+        </section>
       </div>
     </section>
   )

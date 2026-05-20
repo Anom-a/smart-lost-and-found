@@ -29,6 +29,12 @@ export function Navbar() {
       </label>
 
       <div className="flex items-center gap-3">
+        <Link
+          to="/claims"
+          className="hidden rounded-lg border border-[#c3c5d7] px-4 py-2 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe] md:inline-flex"
+        >
+          Claims
+        </Link>
         <button
           onClick={toggleTheme}
           className="flex h-10 w-10 items-center justify-center rounded-full text-[#191b23] dark:text-white transition hover:bg-[#f3f3fe] dark:hover:bg-gray-800"

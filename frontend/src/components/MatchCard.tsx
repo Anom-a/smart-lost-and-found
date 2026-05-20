@@ -8,7 +8,14 @@ const statusStyles: Record<ItemMatch['status'], string> = {
   confirmed: 'bg-[#85f8c4] text-[#005137]',
 }
 
-export function MatchCard({ match }: { match: ItemMatch }) {
+type MatchCardProps = {
+  match: ItemMatch
+  actionLabel?: string
+  actionDisabled?: boolean
+  onAction?: () => void
+}
+
+export function MatchCard({ match, actionLabel, actionDisabled = false, onAction }: MatchCardProps) {
   const lostTitle = match.lostItemTitle ?? `Lost item #${match.lostItemId}`
   const foundTitle = match.foundItemTitle ?? `Found item #${match.foundItemId}`
   const score = Math.round(match.score * 100)
@@ -38,6 +45,18 @@ export function MatchCard({ match }: { match: ItemMatch }) {
         <Clock3 className="h-4 w-4" />
         Generated {formatDistanceToNow(new Date(match.createdAt), { addSuffix: true })}
       </div>
+      {actionLabel && onAction ? (
+        <div className="border-t border-[#e2e1ed] px-5 py-4">
+          <button
+            type="button"
+            onClick={onAction}
+            disabled={actionDisabled}
+            className="inline-flex h-11 items-center rounded-lg bg-[#003fb1] px-4 text-sm font-semibold text-white transition hover:bg-[#1a56db] disabled:cursor-not-allowed disabled:bg-[#c3c5d7]"
+          >
+            {actionLabel}
+          </button>
+        </div>
+      ) : null}
     </article>
   )
 }

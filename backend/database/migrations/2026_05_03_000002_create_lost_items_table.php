@@ -8,7 +8,9 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('lost_items', function (Blueprint $table) {
+        $driver = Schema::getConnection()->getDriverName();
+
+        Schema::create('lost_items', function (Blueprint $table) use ($driver) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('item_category_id')->constrained()->restrictOnDelete();
@@ -25,7 +27,7 @@ return new class extends Migration
 
             $table->index(['user_id', 'status']);
             $table->index(['item_category_id', 'status']);
-            if (config('database.default') !== 'sqlite') {
+            if ($driver !== 'sqlite') {
                 $table->fullText(['title', 'description']);
             }
         });

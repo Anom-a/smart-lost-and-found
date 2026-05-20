@@ -10,19 +10,14 @@ return new class extends Migration
     {
         Schema::create('claim_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('claimant_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('claimant_user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('lost_item_id')->constrained()->cascadeOnDelete();
             $table->foreignId('found_item_id')->constrained()->cascadeOnDelete();
-            $table->text('message')->nullable();
-            $table->json('proof_details')->nullable();
+            $table->text('proof_message');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->timestamp('reviewed_at')->nullable();
-            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamps();
 
-            $table->unique(['claimant_id', 'lost_item_id', 'found_item_id']);
-            $table->index(['lost_item_id', 'status']);
-            $table->index(['found_item_id', 'status']);
+            $table->unique(['claimant_user_id', 'lost_item_id', 'found_item_id']);
         });
     }
 

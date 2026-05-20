@@ -45,7 +45,7 @@ class User extends Authenticatable
 
     public function claimRequests(): HasMany
     {
-        return $this->hasMany(ClaimRequest::class, 'claimant_id');
+        return $this->hasMany(ClaimRequest::class, 'claimant_user_id');
     }
 
     public function notifications(): HasMany

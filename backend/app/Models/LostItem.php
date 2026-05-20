@@ -46,6 +46,6 @@ class LostItem extends Model
 
     public function claimRequests(): HasMany
     {
-        return $this->hasMany(ClaimRequest::class);
+        return $this->hasMany(ClaimRequest::class, 'lost_item_id');
     }
 }

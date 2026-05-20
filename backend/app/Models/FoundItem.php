@@ -46,6 +46,6 @@ class FoundItem extends Model
 
     public function claimRequests(): HasMany
     {
-        return $this->hasMany(ClaimRequest::class);
+        return $this->hasMany(ClaimRequest::class, 'found_item_id');
     }
 }
