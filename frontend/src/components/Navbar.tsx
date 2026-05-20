@@ -37,13 +37,6 @@ export function Navbar() {
           {theme === 'light' ? <FaMoon className="h-5 w-5" /> : <FaSun className="h-5 w-5" />}
         </button>
         <NotificationBell notifications={notifications} />
-        <Link
-          to="/notifications"
-          className="hidden h-10 w-10 items-center justify-center rounded-full text-[#191b23] transition hover:bg-[#f3f3fe] sm:flex"
-          aria-label="Help"
-        >
-          <ShieldQuestion className="h-5 w-5" />
-        </Link>
         {user ? (
           <div className="flex items-center gap-3 border-l border-[#e2e1ed] pl-3">
             <div className="hidden text-right sm:block">

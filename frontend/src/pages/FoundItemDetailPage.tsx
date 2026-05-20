@@ -26,5 +26,5 @@ export function FoundItemDetailPage() {
     return <EmptyState title="Found item not found" description="The requested item could not be located." />
   }
 
-  return <ItemCard item={item} />
+  return <ItemCard item={item} showViewDetails={false} />
 }

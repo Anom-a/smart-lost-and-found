@@ -62,7 +62,7 @@ export function LostItemDetailPage() {
 
   return (
     <section className="space-y-6">
-      <ItemCard item={item} />
+      <ItemCard item={item} showViewDetails={false} />
 
       <section className="space-y-4">
         <div>

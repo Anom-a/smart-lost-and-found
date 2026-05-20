@@ -15,7 +15,7 @@ const typeStyles: Record<Item['type'], string> = {
   found: 'bg-[#dbe1ff] text-[#003dab]',
 }
 
-export function ItemCard({ item }: { item: Item }) {
+export function ItemCard({ item, showViewDetails = true }: { item: Item; showViewDetails?: boolean }) {
   const detailPath = item.type === 'lost' ? `/lost-items/${item.id}` : `/found-items/${item.id}`
 
   return (
@@ -67,9 +67,11 @@ export function ItemCard({ item }: { item: Item }) {
           )}
         </dl>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#737686]">{item.description}</p>
-        <Link to={detailPath} className="mt-5 inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">
-          View details
-        </Link>
+        {showViewDetails && (
+          <Link to={detailPath} className="mt-5 inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">
+            View details
+          </Link>
+        )}
       </div>
     </article>
   )
