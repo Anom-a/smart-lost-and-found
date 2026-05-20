@@ -8,7 +8,12 @@ import { submitClaim } from '../../lib/api'
 import type { ClaimRequest } from '../../types'
 
 const schema = z.object({
-  proof_message: z.string().min(20, 'Proof message must be at least 20 characters.').max(1000, 'Proof message must be 1000 characters or less.'),
+  proof_message: z
+    .string()
+    .trim()
+    .min(1, 'Proof message is required')
+    .min(20, 'Proof message must be at least 20 characters.')
+    .max(1000, 'Proof message must be 1000 characters or less.'),
 })
 
 type ClaimFormValues = z.infer<typeof schema>

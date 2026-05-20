@@ -45,7 +45,7 @@ describe('ClaimCard', () => {
 
     expect(screen.getByText('User A')).toBeInTheDocument()
     expect(screen.getByText(/i had this headset/i)).toBeInTheDocument()
-    expect(screen.getByText('pending')).toBeInTheDocument()
+    expect(screen.getByText('Pending')).toBeInTheDocument()
   })
 
   test('shows Approve and Reject buttons when status is pending and current user is the found item reporter', () => {
@@ -65,19 +65,19 @@ describe('ClaimCard', () => {
   test('shows a Pending status badge styled in yellow', () => {
     render(<ClaimCard claim={createClaim('pending')} currentUserId={2} />)
 
-    expect(screen.getByText('pending')).toHaveClass('bg-yellow-100')
+    expect(screen.getByText('Pending')).toHaveClass('bg-yellow-100')
   })
 
   test('shows an Approved status badge styled in green', () => {
     render(<ClaimCard claim={createClaim('approved')} currentUserId={2} />)
 
-    expect(screen.getByText('approved')).toHaveClass('bg-[#dcfce7]')
+    expect(screen.getByText('Approved')).toHaveClass('bg-[#dcfce7]')
   })
 
   test('shows a Rejected status badge styled in red', () => {
     render(<ClaimCard claim={createClaim('rejected')} currentUserId={2} />)
 
-    expect(screen.getByText('rejected')).toHaveClass('bg-[#fee2e2]')
+    expect(screen.getByText('Rejected')).toHaveClass('bg-[#fee2e2]')
   })
 
   test('calls onApprove prop when Approve button is clicked', async () => {

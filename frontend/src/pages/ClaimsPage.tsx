@@ -3,12 +3,21 @@ import toast from 'react-hot-toast'
 import { ClipboardCheck } from 'lucide-react'
 import { EmptyState } from '../components/EmptyState'
 import { ErrorState } from '../components/ErrorState'
-import { LoadingState } from '../components/LoadingState'
 import { ClaimCard } from '../components/claims/ClaimCard'
 import { getApiErrorMessage } from '../lib/api'
 import { approveClaim, getClaims, rejectClaim } from '../lib/api'
 import { useAuth } from '../hooks/useAuth'
 import type { ClaimRequest, ClaimsResponse } from '../types'
+
+function ClaimsSkeleton() {
+  return (
+    <div className="space-y-4" aria-label="Loading claims">
+      {Array.from({ length: 3 }).map((_, index) => (
+        <div key={index} data-testid="claim-skeleton" className="h-56 animate-pulse rounded-2xl border border-[#e2e1ed] bg-white" />
+      ))}
+    </div>
+  )
+}
 
 export function ClaimsPage() {
   const queryClient = useQueryClient()
@@ -53,15 +62,9 @@ export function ClaimsPage() {
   const sentClaims = claims?.sent ?? []
   const receivedClaims = claims?.received ?? []
 
-  const renderSkeleton = () => (
-    <div className="space-y-4">
-      {Array.from({ length: 3 }).map((_, index) => (
-        <div key={index} className="h-56 animate-pulse rounded-2xl border border-[#e2e1ed] bg-white" />
-      ))}
-    </div>
-  )
+  const renderSkeleton = () => <ClaimsSkeleton />
 
-  if (isLoading) return <LoadingState message="Loading claims..." />
+  if (isLoading) return <ClaimsSkeleton />
   if (isError) return <ErrorState description="Unable to load claims from the API." />
 
   return (
@@ -104,8 +107,18 @@ export function ClaimsPage() {
                     key={claim.id}
                     claim={claim}
                     currentUserId={currentUserId}
-                    onApprove={(selectedClaim) => claimMutation.mutate({ claim: selectedClaim, action: 'approve' })}
-                    onReject={(selectedClaim) => claimMutation.mutate({ claim: selectedClaim, action: 'reject' })}
+                    onApprove={(id) => {
+                      const selectedClaim = receivedClaims.find((entry) => entry.id === id)
+                      if (selectedClaim) {
+                        claimMutation.mutate({ claim: selectedClaim, action: 'approve' })
+                      }
+                    }}
+                    onReject={(id) => {
+                      const selectedClaim = receivedClaims.find((entry) => entry.id === id)
+                      if (selectedClaim) {
+                        claimMutation.mutate({ claim: selectedClaim, action: 'reject' })
+                      }
+                    }}
                   />
                 ))}
               </div>

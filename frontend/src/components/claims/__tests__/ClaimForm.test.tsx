@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import toast from 'react-hot-toast'
 import { ClaimForm } from '../ClaimForm'
 
 const apiMocks = vi.hoisted(() => ({

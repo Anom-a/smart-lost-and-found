@@ -48,6 +48,7 @@ export type AppNotification = {
   message: string
   createdAt: string
   read: boolean
+  data?: Record<string, any>
 }
 
 export type DashboardStats = {

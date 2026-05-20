@@ -199,4 +199,98 @@ class FoundItemControllerTest extends TestCase
             'status' => 'available',
         ], $overrides));
     }
+
+    public function test_matching_lost_item_reporter_gets_notification(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+
+        $lostUser = User::factory()->create(['name' => 'John Lost', 'email' => 'john@lost.com', 'student_id' => '12345']);
+        $foundUser = User::factory()->create(['name' => 'Jane Found', 'email' => 'jane@found.com', 'student_id' => '67890', 'phone' => '555-555-5555']);
+        $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
+
+        // Create open lost report
+        $lostItem = \App\Models\LostItem::create([
+            'user_id' => $lostUser->id,
+            'item_category_id' => $category->id,
+            'title' => 'Student ID Card',
+            'description' => 'Blue plastic card with name John Lost',
+            'keywords' => ['id', 'card', 'blue'],
+            'lost_location' => 'Cafeteria',
+            'lost_at' => now(),
+            'status' => 'open',
+        ]);
+
+        Sanctum::actingAs($foundUser);
+
+        // Report found item (nearly identical)
+        $response = $this->postJson('/api/found-items', [
+            'item_category_id' => $category->id,
+            'title' => 'Student ID Card',
+            'description' => 'Blue plastic card with name John Lost',
+            'keywords' => ['id', 'card', 'blue'],
+            'found_location' => 'Cafeteria',
+            'found_at' => now()->toDateTimeString(),
+            'handover_location' => 'Security office',
+            'contact_phone' => '+251912345678',
+        ]);
+
+        $response->assertCreated();
+
+        // Assert notification was sent to $lostUser
+        \Illuminate\Support\Facades\Notification::assertSentTo(
+            $lostUser,
+            \App\Notifications\MatchFoundNotification::class,
+            function ($notification, $channels) use ($lostItem, $lostUser) {
+                $this->assertContains('database', $channels);
+                $data = $notification->toDatabase($lostUser);
+                $this->assertEquals('Potential match found', $data['title']);
+                $this->assertStringContainsString("Jane Found (jane@found.com, +251912345678)", $data['message']);
+                $this->assertStringContainsString("Blue plastic card with name John Lost", $data['message']);
+                return true;
+            }
+        );
+    }
+
+    public function test_no_notification_sent_if_match_score_is_seventy_percent_or_less(): void
+    {
+        \Illuminate\Support\Facades\Notification::fake();
+
+        $lostUser = User::factory()->create();
+        $foundUser = User::factory()->create();
+        $category1 = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
+        $category2 = ItemCategory::create(['name' => 'Bags', 'slug' => 'bags']);
+
+        // Different category makes score at most 60%
+        $lostItem = \App\Models\LostItem::create([
+            'user_id' => $lostUser->id,
+            'item_category_id' => $category1->id,
+            'title' => 'Student ID Card',
+            'description' => 'Blue plastic card with name John Lost',
+            'keywords' => ['id', 'card', 'blue'],
+            'lost_location' => 'Cafeteria',
+            'lost_at' => now(),
+            'status' => 'open',
+        ]);
+
+        Sanctum::actingAs($foundUser);
+
+        $response = $this->postJson('/api/found-items', [
+            'item_category_id' => $category2->id,
+            'title' => 'Student ID Card',
+            'description' => 'Blue plastic card with name John Lost',
+            'keywords' => ['id', 'card', 'blue'],
+            'found_location' => 'Cafeteria',
+            'found_at' => now()->toDateTimeString(),
+            'handover_location' => 'Security office',
+            'contact_phone' => '+251912345678',
+        ]);
+
+        $response->assertCreated();
+
+        // Assert notification was NOT sent to $lostUser
+        \Illuminate\Support\Facades\Notification::assertNotSentTo(
+            $lostUser,
+            \App\Notifications\MatchFoundNotification::class
+        );
+    }
 }

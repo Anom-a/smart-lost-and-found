@@ -96,6 +96,7 @@ type BackendNotification = {
   message: string
   read_at: string | null
   created_at: string
+  data?: Record<string, any> | null
 }
 
 type AuthResponse = {
@@ -230,6 +231,7 @@ function toNotification(notification: BackendNotification): AppNotification {
     message: notification.message,
     createdAt: notification.created_at,
     read: Boolean(notification.read_at),
+    data: notification.data ?? undefined,
   }
 }
 
@@ -340,6 +342,10 @@ export async function fetchNotifications() {
   const response = await api.get<ApiResponse<BackendNotification[]>>('/notifications', { params: { per_page: 50 } })
 
   return response.data.data.map(toNotification)
+}
+
+export async function markAllNotificationsAsRead() {
+  await api.post('/notifications/mark-all-read')
 }
 
 export async function fetchMatches() {

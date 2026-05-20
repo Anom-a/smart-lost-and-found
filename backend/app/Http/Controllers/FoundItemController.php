@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreFoundItemRequest;
 use App\Http\Resources\FoundItemResource;
 use App\Models\FoundItem;
+use App\Models\LostItem;
+use App\Services\MatchingService;
+use App\Notifications\MatchFoundNotification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -44,6 +47,21 @@ class FoundItemController extends Controller
         $data['status'] = $data['status'] ?? 'available';
 
         $item = FoundItem::create($data)->load(['user', 'category']);
+
+        $matchingService = app(MatchingService::class);
+        $lostItems = LostItem::query()
+            ->with(['user', 'category'])
+            ->where('status', 'open')
+            ->get();
+
+        foreach ($lostItems as $lostItem) {
+            $score = $matchingService->score($lostItem, $item);
+            if ($score > 0.70) {
+                // Attach temporary match_score attribute for use in notifications
+                $item->setAttribute('match_score', $score);
+                $lostItem->user?->notify(new MatchFoundNotification($lostItem, $item));
+            }
+        }
 
         return $this->successResponse('Found item created.', new FoundItemResource($item), 201);
     }

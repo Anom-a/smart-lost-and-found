@@ -3,7 +3,6 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, test, vi } from 'vitest'
-import toast from 'react-hot-toast'
 import { ClaimsPage } from '../../ClaimsPage'
 
 const apiMocks = vi.hoisted(() => ({
@@ -20,7 +19,7 @@ const toastMocks = vi.hoisted(() => ({
 
 vi.mock('../../../hooks/useAuth', () => ({
   useAuth: () => ({
-    user: { id: 1, name: 'User A', email: 'user@example.com', studentId: 'STU-001' },
+    user: { id: 2, name: 'User B', email: 'user@example.com', studentId: 'STU-002' },
   }),
 }))
 
@@ -98,7 +97,6 @@ describe('ClaimsPage', () => {
 
     renderPage()
 
-    expect(screen.getByText(/loading claims/i)).toBeInTheDocument()
     expect(screen.getAllByTestId('claim-skeleton')).toHaveLength(3)
   })
 
@@ -180,7 +178,7 @@ describe('ClaimsPage', () => {
     await screen.findByRole('button', { name: /approve/i })
     await user.click(screen.getByRole('button', { name: /approve/i }))
 
-    expect(screen.getByText('approved')).toBeInTheDocument()
+    expect(screen.getByText('Approved')).toBeInTheDocument()
     resolveApprove(createClaim(1, 'approved'))
   })
 
@@ -197,6 +195,6 @@ describe('ClaimsPage', () => {
     await waitFor(() => {
       expect(toastMocks.error).toHaveBeenCalled()
     })
-    expect(screen.getByText('pending')).toBeInTheDocument()
+    expect(screen.getByText('Pending')).toBeInTheDocument()
   })
 })

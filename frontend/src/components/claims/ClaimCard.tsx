@@ -5,8 +5,8 @@ import { ClaimStatusBadge } from './ClaimStatusBadge'
 type ClaimCardProps = {
   claim: ClaimRequest
   currentUserId: number | null
-  onApprove?: (claim: ClaimRequest) => void
-  onReject?: (claim: ClaimRequest) => void
+  onApprove?: (id: number) => void
+  onReject?: (id: number) => void
 }
 
 export function ClaimCard({ claim, currentUserId, onApprove, onReject }: ClaimCardProps) {
@@ -48,14 +48,14 @@ export function ClaimCard({ claim, currentUserId, onApprove, onReject }: ClaimCa
         <div className="mt-5 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => onApprove(claim)}
+            onClick={() => onApprove(claim.id)}
             className="inline-flex h-11 items-center rounded-lg bg-[#166534] px-4 text-sm font-semibold text-white transition hover:bg-[#15803d]"
           >
             Approve
           </button>
           <button
             type="button"
-            onClick={() => onReject(claim)}
+            onClick={() => onReject(claim.id)}
             className="inline-flex h-11 items-center rounded-lg bg-[#b91c1c] px-4 text-sm font-semibold text-white transition hover:bg-[#dc2626]"
           >
             Reject
