@@ -43,7 +43,7 @@ class LostItemControllerTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
         $category = ItemCategory::create(['name' => 'Electronics', 'slug' => 'electronics']);
 
-        $response = $this->post('/api/lost-items', $this->payload($category, [
+        $response = $this->postJson('/api/lost-items', $this->payload($category, [
             'image' => UploadedFile::fake()->create('malware.pdf', 100, 'application/pdf'),
         ]));
 
@@ -56,7 +56,7 @@ class LostItemControllerTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
         $category = ItemCategory::create(['name' => 'Electronics', 'slug' => 'electronics']);
 
-        $response = $this->post('/api/lost-items', $this->payload($category, [
+        $response = $this->postJson('/api/lost-items', $this->payload($category, [
             'image' => UploadedFile::fake()->image('too-large.jpg')->size(5121),
         ]));
 
@@ -97,7 +97,7 @@ class LostItemControllerTest extends TestCase
 
         $this->postJson('/api/lost-items', [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['item_category_id', 'title', 'description']);
+            ->assertJsonValidationErrors(['item_category_id', 'title', 'description', 'contact_phone']);
     }
 
     public function test_lost_items_can_be_listed(): void
@@ -177,6 +177,7 @@ class LostItemControllerTest extends TestCase
             'keywords' => ['laptop', 'black'],
             'lost_location' => 'Main library',
             'lost_at' => now()->toDateTimeString(),
+            'contact_phone' => '+251912345678',
         ], $overrides);
     }
 

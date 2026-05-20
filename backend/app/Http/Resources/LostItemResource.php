@@ -20,6 +20,7 @@ class LostItemResource extends JsonResource
             'lost_at' => optional($this->lost_at)->toISOString(),
             'image_path' => $this->image_path,
             'contact_preference' => $this->contact_preference,
+            'contact_phone' => $this->contact_phone,
             'status' => $this->status,
             'created_at' => optional($this->created_at)->toISOString(),
             'updated_at' => optional($this->updated_at)->toISOString(),

@@ -1,5 +1,5 @@
 import { format } from 'date-fns'
-import { CalendarDays, MapPin, UserRound } from 'lucide-react'
+import { CalendarDays, MapPin, Phone, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import type { Item } from '../types/models'
 
@@ -58,6 +58,13 @@ export function ItemCard({ item }: { item: Item }) {
             <dt className="sr-only">Reported by</dt>
             <dd>{item.reportedBy}</dd>
           </div>
+          {item.contactPhone && (
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-[#003fb1]" />
+              <dt className="sr-only">Contact</dt>
+              <dd>{item.contactPhone}</dd>
+            </div>
+          )}
         </dl>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#737686]">{item.description}</p>
         <Link to={detailPath} className="mt-5 inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">

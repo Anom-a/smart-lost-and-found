@@ -12,6 +12,7 @@ export type Item = {
   description: string
   reportedBy: string
   imageUrl?: string
+  contactPhone?: string
 }
 
 export type MatchStatus = 'pending' | 'reviewed' | 'confirmed'

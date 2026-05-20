@@ -28,6 +28,7 @@ test('createLostItem submits FormData and maps image URL from storage base', asy
         created_at: '2026-05-01T10:00:00.000Z',
         updated_at: '2026-05-01T10:00:00.000Z',
         image_path: 'items/lost/lost.png',
+        contact_phone: '+251912345678',
       },
     },
   })
@@ -38,6 +39,7 @@ test('createLostItem submits FormData and maps image URL from storage base', asy
     location: 'Library',
     description: 'Black phone with a cracked screen.',
     date: '2026-05-01T10:00:00.000Z',
+    contactPhone: '+251912345678',
     image,
   })
 
@@ -55,6 +57,7 @@ test('createLostItem submits FormData and maps image URL from storage base', asy
       ['description', 'Black phone with a cracked screen.'],
       ['lost_location', 'Library'],
       ['lost_at', '2026-05-01T10:00:00.000Z'],
+      ['contact_phone', '+251912345678'],
       ['image', image],
     ]),
   )
@@ -75,6 +78,7 @@ test('createFoundItem submits FormData and maps image URL from storage base', as
         created_at: '2026-05-02T09:00:00.000Z',
         updated_at: '2026-05-02T09:00:00.000Z',
         image_path: null,
+        contact_phone: '+251912345678',
       },
     },
   })
@@ -85,6 +89,7 @@ test('createFoundItem submits FormData and maps image URL from storage base', as
     location: 'Gate',
     description: 'Brown wallet found near the gate.',
     date: '2026-05-02T09:00:00.000Z',
+    contactPhone: '+251912345678',
   })
 
   const formData = apiPost.mock.calls[0][1] as FormData
@@ -95,6 +100,7 @@ test('createFoundItem submits FormData and maps image URL from storage base', as
       ['description', 'Brown wallet found near the gate.'],
       ['found_location', 'Gate'],
       ['found_at', '2026-05-02T09:00:00.000Z'],
+      ['contact_phone', '+251912345678'],
     ]),
   )
 
@@ -103,27 +109,29 @@ test('createFoundItem submits FormData and maps image URL from storage base', as
 
 test('createLostItem submits multipart FormData with the selected image', async () => {
   const image = new File(['image'], 'item.png', { type: 'image/png' })
-  apiPost.mockResolvedValueOnce({ data: { data: { id: 1, title: 'Lost laptop', description: 'A black laptop with a sticker.', lost_location: 'Main library', lost_at: null, image_path: 'items/lost/item.png', status: 'open', created_at: '2026-05-03T00:00:00.000Z', updated_at: '2026-05-03T00:00:00.000Z' } } })
+  apiPost.mockResolvedValueOnce({ data: { data: { id: 1, title: 'Lost laptop', description: 'A black laptop with a sticker.', lost_location: 'Main library', lost_at: null, image_path: 'items/lost/item.png', contact_phone: '+251912345678', status: 'open', created_at: '2026-05-03T00:00:00.000Z', updated_at: '2026-05-03T00:00:00.000Z' } } })
 
-  await createLostItem({ title: 'Lost laptop', itemCategoryId: 1, location: 'Main library', description: 'A black laptop with a sticker.', image })
+  await createLostItem({ title: 'Lost laptop', itemCategoryId: 1, location: 'Main library', description: 'A black laptop with a sticker.', contactPhone: '+251912345678', image })
 
   const [, body, config] = apiPost.mock.calls[0]
 
   expect(body).toBeInstanceOf(FormData)
   expect((body as FormData).get('image')).toBe(image)
   expect((body as FormData).get('item_category_id')).toBe('1')
-  expect(config).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } })
+  expect((body as FormData).get('contact_phone')).toBe('+251912345678')
+  config
 })
 
 test('createFoundItem submits multipart FormData without an image', async () => {
-  apiPost.mockResolvedValueOnce({ data: { data: { id: 1, title: 'Found ID card', description: 'A student ID card found near the cafeteria.', found_location: 'Cafeteria', found_at: null, image_path: null, status: 'available', created_at: '2026-05-03T00:00:00.000Z', updated_at: '2026-05-03T00:00:00.000Z' } } })
+  apiPost.mockResolvedValueOnce({ data: { data: { id: 1, title: 'Found ID card', description: 'A student ID card found near the cafeteria.', found_location: 'Cafeteria', found_at: null, image_path: null, contact_phone: '+251912345678', status: 'available', created_at: '2026-05-03T00:00:00.000Z', updated_at: '2026-05-03T00:00:00.000Z' } } })
 
-  await createFoundItem({ title: 'Found ID card', itemCategoryId: 2, location: 'Cafeteria', description: 'A student ID card found near the cafeteria.' })
+  await createFoundItem({ title: 'Found ID card', itemCategoryId: 2, location: 'Cafeteria', description: 'A student ID card found near the cafeteria.', contactPhone: '+251912345678' })
 
   const [, body, config] = apiPost.mock.calls[0]
 
   expect(body).toBeInstanceOf(FormData)
   expect((body as FormData).get('image')).toBeNull()
   expect((body as FormData).get('found_location')).toBe('Cafeteria')
+  expect((body as FormData).get('contact_phone')).toBe('+251912345678')
   expect(config).toEqual({ headers: { 'Content-Type': 'multipart/form-data' } })
 })

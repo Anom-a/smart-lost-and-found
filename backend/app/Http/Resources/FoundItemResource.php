@@ -20,6 +20,7 @@ class FoundItemResource extends JsonResource
             'found_at' => optional($this->found_at)->toISOString(),
             'image_path' => $this->image_path,
             'handover_location' => $this->handover_location,
+            'contact_phone' => $this->contact_phone,
             'status' => $this->status,
             'match_score' => $this->when($this->match_score !== null, $this->match_score),
             'match_breakdown' => $this->when($this->match_breakdown !== null, $this->match_breakdown),

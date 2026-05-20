@@ -25,6 +25,7 @@ class FoundItem extends Model
         'found_at',
         'image_path',
         'handover_location',
+        'contact_phone',
         'status',
     ];
 

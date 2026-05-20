@@ -10,7 +10,7 @@ services:
     depends_on:
       - db
     ports:
-      - "8000:8000"
+      - "55432:5432"
     command: php artisan serve --host=0.0.0.0 --port=8000
     environment:
       DB_CONNECTION: pgsql

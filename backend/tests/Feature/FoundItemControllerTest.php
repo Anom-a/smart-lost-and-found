@@ -43,7 +43,7 @@ class FoundItemControllerTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
         $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
 
-        $response = $this->post('/api/found-items', $this->payload($category, [
+        $response = $this->postJson('/api/found-items', $this->payload($category, [
             'image' => UploadedFile::fake()->create('bad.gif', 100, 'image/gif'),
         ]));
 
@@ -56,7 +56,7 @@ class FoundItemControllerTest extends TestCase
         Sanctum::actingAs(User::factory()->create());
         $category = ItemCategory::create(['name' => 'Documents/Books', 'slug' => 'documentsbooks']);
 
-        $response = $this->post('/api/found-items', $this->payload($category, [
+        $response = $this->postJson('/api/found-items', $this->payload($category, [
             'image' => UploadedFile::fake()->image('too-large.jpg')->size(5121),
         ]));
 
@@ -97,7 +97,7 @@ class FoundItemControllerTest extends TestCase
 
         $this->postJson('/api/found-items', [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['item_category_id', 'title', 'description']);
+            ->assertJsonValidationErrors(['item_category_id', 'title', 'description', 'contact_phone']);
     }
 
     public function test_found_items_can_be_listed(): void
@@ -178,6 +178,7 @@ class FoundItemControllerTest extends TestCase
             'found_location' => 'Cafeteria',
             'found_at' => now()->toDateTimeString(),
             'handover_location' => 'Security office',
+            'contact_phone' => '+251912345678',
         ], $overrides);
     }
 

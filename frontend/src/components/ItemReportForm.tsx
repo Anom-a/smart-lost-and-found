@@ -45,6 +45,10 @@ const reportSchema = z.object({
   date: z.string().optional(),
   location: z.string().min(3, 'Location is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
+  contactPhone: z
+    .string()
+    .min(1, 'Contact phone is required')
+    .regex(/^\+251\d{9}$/, 'Must be a valid Ethiopian phone number starting with +251 (e.g. +251912345678)'),
   image: z.preprocess(
     normalizeImageValue,
     z.custom<File | undefined>((value) => value === undefined || isFileLike(value), {
@@ -140,6 +144,12 @@ export function ItemReportForm({
         <label className="text-sm font-medium text-slate-700">Location</label>
         <input className="mt-1 w-full rounded-md border px-3 py-2" {...register('location')} />
         {errors.location ? <p className="mt-1 text-sm text-red-600">{errors.location.message}</p> : null}
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-slate-700">Contact Phone Number (+251...)</label>
+        <input placeholder="+251912345678" className="mt-1 w-full rounded-md border px-3 py-2" {...register('contactPhone')} />
+        {errors.contactPhone ? <p className="mt-1 text-sm text-red-600">{errors.contactPhone.message}</p> : null}
       </div>
 
       <div>

@@ -25,6 +25,7 @@ class LostItem extends Model
         'lost_at',
         'image_path',
         'contact_preference',
+        'contact_phone',
         'status',
     ];
 

@@ -24,6 +24,7 @@ type BackendLostItem = {
   created_at: string | null
   updated_at: string | null
   image_path: string | null
+  contact_phone: string | null
   user?: BackendUser
   category?: BackendCategory
 }
@@ -39,6 +40,7 @@ type BackendFoundItem = {
   created_at: string | null
   updated_at: string | null
   image_path: string | null
+  contact_phone: string | null
   user?: BackendUser
   category?: BackendCategory
 }
@@ -80,6 +82,7 @@ export type ReportPayload = {
   date?: string
   location: string
   description: string
+  contactPhone: string
   image?: File
 }
 
@@ -97,6 +100,7 @@ function toItemFormData(payload: ReportPayload, type: 'lost' | 'found'): FormDat
   formData.append('item_category_id', String(payload.itemCategoryId))
   formData.append('title', payload.title)
   formData.append('description', payload.description)
+  formData.append('contact_phone', payload.contactPhone)
 
   if (type === 'lost') {
     formData.append('lost_location', payload.location)
@@ -140,6 +144,7 @@ function toLostItem(item: BackendLostItem): Item {
     description: item.description,
     reportedBy: item.user?.name ?? 'Unknown',
     imageUrl: toStorageUrl(item.image_path),
+    contactPhone: item.contact_phone ?? undefined,
   }
 }
 
@@ -155,6 +160,7 @@ function toFoundItem(item: BackendFoundItem): Item {
     description: item.description,
     reportedBy: item.user?.name ?? 'Unknown',
     imageUrl: toStorageUrl(item.image_path),
+    contactPhone: item.contact_phone ?? undefined,
   }
 }
 
