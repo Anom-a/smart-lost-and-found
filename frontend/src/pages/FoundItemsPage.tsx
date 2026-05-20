@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Inbox, Plus } from 'lucide-react'
 import { EmptyState } from '../components/EmptyState'
@@ -8,10 +8,17 @@ import { LoadingState } from '../components/LoadingState'
 import { fetchFoundItems } from '../lib/apiData'
 
 export function FoundItemsPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const statusFilter = searchParams.get('status') || 'available'
+
   const { data: foundItems = [], isLoading, isError } = useQuery({
-    queryKey: ['found-items'],
-    queryFn: fetchFoundItems,
+    queryKey: ['found-items', statusFilter],
+    queryFn: () => fetchFoundItems(statusFilter),
   })
+
+  const handleFilterChange = (status: string) => {
+    setSearchParams({ status })
+  }
 
   if (isLoading) return <LoadingState message="Loading found item reports..." />
   if (isError) return <ErrorState description="Unable to load found item reports from the API." />
@@ -32,8 +39,51 @@ export function FoundItemsPage() {
           Report found item
         </Link>
       </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          onClick={() => handleFilterChange('available')}
+          className={`inline-flex h-10 items-center justify-center px-5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            statusFilter === 'available'
+              ? 'bg-[#003fb1] text-white shadow-[0_4px_12px_rgba(0,63,177,0.15)]'
+              : 'bg-white border border-[#e2e1ed] text-[#434654] hover:bg-[#f3f3fe]'
+          }`}
+        >
+          Available
+        </button>
+        <button
+          onClick={() => handleFilterChange('closed')}
+          className={`inline-flex h-10 items-center justify-center px-5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            statusFilter === 'closed'
+              ? 'bg-[#003fb1] text-white shadow-[0_4px_12px_rgba(0,63,177,0.15)]'
+              : 'bg-white border border-[#e2e1ed] text-[#434654] hover:bg-[#f3f3fe]'
+          }`}
+        >
+          Closed
+        </button>
+        <button
+          onClick={() => handleFilterChange('all')}
+          className={`inline-flex h-10 items-center justify-center px-5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+            statusFilter === 'all'
+              ? 'bg-[#003fb1] text-white shadow-[0_4px_12px_rgba(0,63,177,0.15)]'
+              : 'bg-white border border-[#e2e1ed] text-[#434654] hover:bg-[#f3f3fe]'
+          }`}
+        >
+          All
+        </button>
+      </div>
+
       <div className="grid gap-5 xl:grid-cols-2">
-        {foundItems.length > 0 ? foundItems.map((item) => <ItemCard key={item.id} item={item} />) : <EmptyState title="No found items" description="Found reports will show here." actionLabel="Report one" actionTo="/found-items/new" />}
+        {foundItems.length > 0 ? (
+          foundItems.map((item) => <ItemCard key={item.id} item={item} />)
+        ) : (
+          <EmptyState
+            title="No found items"
+            description={`Found reports with status "${statusFilter}" will show here.`}
+            actionLabel="Report one"
+            actionTo="/found-items/new"
+          />
+        )}
       </div>
     </section>
   )

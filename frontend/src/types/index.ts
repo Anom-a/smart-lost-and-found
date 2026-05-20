@@ -14,7 +14,7 @@ export type LostItem = {
   category: ClaimItemCategory
   location: string | null
   date_lost: string | null
-  status: 'open' | 'available' | 'claimed' | 'closed' | string
+  status: 'open' | 'claimed' | 'closed'
 }
 
 export type FoundItem = {
@@ -23,7 +23,7 @@ export type FoundItem = {
   category: ClaimItemCategory
   location: string | null
   date_found: string | null
-  status: 'open' | 'available' | 'claimed' | 'closed' | string
+  status: 'available' | 'claimed' | 'closed'
   reporter: User
 }
 
@@ -40,4 +40,12 @@ export interface ClaimRequest {
 export interface ClaimsResponse {
   sent: ClaimRequest[]
   received: ClaimRequest[]
+}
+
+export interface PaginatedResponse<T> {
+  data: T[]
+  current_page: number
+  per_page: number
+  total: number
+  last_page: number
 }

@@ -263,15 +263,13 @@ export async function logoutRequest() {
   await api.post('/auth/logout')
 }
 
-export async function fetchLostItems() {
-  const response = await api.get<ApiResponse<BackendLostItem[]>>('/lost-items', { params: { per_page: 50 } })
-
+export async function fetchLostItems(status?: string) {
+  const response = await api.get<ApiResponse<BackendLostItem[]>>('/lost-items', { params: { per_page: 50, status } })
   return response.data.data.map(toLostItem)
 }
 
-export async function fetchFoundItems() {
-  const response = await api.get<ApiResponse<BackendFoundItem[]>>('/found-items', { params: { per_page: 50 } })
-
+export async function fetchFoundItems(status?: string) {
+  const response = await api.get<ApiResponse<BackendFoundItem[]>>('/found-items', { params: { per_page: 50, status } })
   return response.data.data.map(toFoundItem)
 }
 

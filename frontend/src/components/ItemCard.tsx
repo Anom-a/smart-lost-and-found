@@ -1,13 +1,16 @@
 import { format } from 'date-fns'
 import { CalendarDays, MapPin, Phone, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+import { useQueryClient } from '@tanstack/react-query'
+import { CloseItemButton } from './ui/CloseItemButton'
 import type { Item } from '../types/models'
 
 const statusStyles: Record<Item['status'], string> = {
   open: 'bg-[#ffeadf] text-[#842c00]',
   available: 'bg-[#dbe1ff] text-[#003dab]',
   claimed: 'bg-[#ffdad6] text-[#93000a]',
-  closed: 'bg-[#85f8c4] text-[#005137]',
+  closed: 'bg-gray-100 text-gray-800 border border-gray-200 bg-gray-100',
 }
 
 const typeStyles: Record<Item['type'], string> = {
@@ -16,7 +19,19 @@ const typeStyles: Record<Item['type'], string> = {
 }
 
 export function ItemCard({ item }: { item: Item }) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
   const detailPath = item.type === 'lost' ? `/lost-items/${item.id}` : `/found-items/${item.id}`
+
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: [item.type === 'lost' ? 'lost-items' : 'found-items'] })
+    queryClient.invalidateQueries({ queryKey: ['my-items'] })
+    queryClient.invalidateQueries({ queryKey: ['my-lost-items'] })
+    queryClient.invalidateQueries({ queryKey: ['my-found-items'] })
+  }
+
+  // Check if owner
+  const isOwner = user && (user.name === item.reportedBy || user.id === (item as any).userId)
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-[#e2e1ed] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
@@ -67,9 +82,19 @@ export function ItemCard({ item }: { item: Item }) {
           )}
         </dl>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#737686]">{item.description}</p>
-        <Link to={detailPath} className="mt-5 inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">
-          View details
-        </Link>
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <Link to={detailPath} className="inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">
+            View details
+          </Link>
+          <CloseItemButton
+            itemId={item.id}
+            itemType={item.type}
+            currentUserId={user?.id}
+            ownerId={isOwner ? user.id : -1}
+            status={item.status}
+            onSuccess={handleSuccess}
+          />
+        </div>
       </div>
     </article>
   )

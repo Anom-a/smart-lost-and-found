@@ -7,6 +7,8 @@ use App\Http\Controllers\FoundItemController;
 use App\Http\Controllers\LostItemController;
 use App\Http\Controllers\MatchController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\MyLostItemController;
+use App\Http\Controllers\MyFoundItemController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', fn () => response()->json(['status' => 'ok']));
@@ -32,6 +34,12 @@ Route::get('/matches', [MatchController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function (): void {
     Route::apiResource('lost-items', LostItemController::class)->except(['index', 'show']);
     Route::apiResource('found-items', FoundItemController::class)->except(['index', 'show']);
+
+    Route::patch('/lost-items/{lostItem}/close', [LostItemController::class, 'close']);
+    Route::patch('/found-items/{foundItem}/close', [FoundItemController::class, 'close']);
+
+    Route::get('/my/lost-items', [MyLostItemController::class, 'index']);
+    Route::get('/my/found-items', [MyFoundItemController::class, 'index']);
 
     Route::get('/claims', [ClaimController::class, 'index']);
     Route::post('/claims', [ClaimController::class, 'store']);

@@ -11,6 +11,7 @@ const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/lost-items', label: 'Lost items', icon: Search },
   { to: '/found-items', label: 'Found items', icon: Inbox },
+  { to: '/my-items', label: 'My items', icon: ClipboardCheck },
   { to: '/matches', label: 'Matches', icon: Handshake },
   { to: '/notifications', label: 'Notifications', icon: Bell },
 ]

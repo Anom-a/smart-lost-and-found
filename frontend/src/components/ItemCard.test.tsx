@@ -1,7 +1,19 @@
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { vi } from 'vitest'
 import { ItemCard } from './ItemCard'
 import type { Item } from '../types/models'
+
+vi.mock('../hooks/useAuth', () => ({
+  useAuth: () => ({
+    user: { id: 1, name: 'Test User' },
+  }),
+}))
+
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false } },
+})
 
 test('ItemCard renders title, category, date, location, and status', () => {
   const item: Item = {
@@ -17,9 +29,11 @@ test('ItemCard renders title, category, date, location, and status', () => {
   }
 
   render(
-    <MemoryRouter>
-      <ItemCard item={item} />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <ItemCard item={item} />
+      </MemoryRouter>
+    </QueryClientProvider>
   )
 
   expect(screen.getByText(item.title)).toBeInTheDocument()
@@ -43,9 +57,11 @@ test('ItemCard renders image when provided and fallback when not', () => {
   }))() as Item), imageUrl: 'http://cdn.test/storage/items/found/wallet.png' }
 
   render(
-    <MemoryRouter>
-      <ItemCard item={itemWithImage} />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <ItemCard item={itemWithImage} />
+      </MemoryRouter>
+    </QueryClientProvider>
   )
 
   expect(screen.getByAltText(/wallet image/i)).toBeInTheDocument()
@@ -53,9 +69,11 @@ test('ItemCard renders image when provided and fallback when not', () => {
   const itemWithoutImage: Item = { ...itemWithImage, id: 3, title: 'NoImage', imageUrl: undefined }
 
   render(
-    <MemoryRouter>
-      <ItemCard item={itemWithoutImage} />
-    </MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter>
+        <ItemCard item={itemWithoutImage} />
+      </MemoryRouter>
+    </QueryClientProvider>
   )
 
   expect(screen.getByText(/no image uploaded for this item/i)).toBeInTheDocument()

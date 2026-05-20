@@ -15,6 +15,7 @@ import { NotFoundPage } from './pages/NotFoundPage'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { MainLayout } from './components/MainLayout'
 import { RegisterPage } from './pages/RegisterPage'
+import { MyItemsPage } from './pages/MyItemsPage'
 
 export function AppRoutes() {
   return (
@@ -35,6 +36,7 @@ export function AppRoutes() {
           <Route path="/matches" element={<MatchesPage />} />
           <Route path="/claims" element={<ClaimsPage />} />
           <Route path="/notifications" element={<NotificationsPage />} />
+          <Route path="/my-items" element={<MyItemsPage />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFoundPage />} />

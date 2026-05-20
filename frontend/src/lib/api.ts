@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios'
 import toast from 'react-hot-toast'
-import type { ClaimRequest, ClaimsResponse } from '../types'
+import type { ClaimRequest, ClaimsResponse, LostItem, FoundItem, PaginatedResponse } from '../types'
 
 export const API_URL = import.meta.env.VITE_API_URL ?? import.meta.env.VITE_API_BASE_URL ?? '/api'
 export const STORAGE_URL = import.meta.env.VITE_STORAGE_URL ?? '/storage'
@@ -140,4 +140,24 @@ export async function rejectClaim(id: number): Promise<ClaimRequest> {
   const response = await api.patch<BackendClaimRequest>(`/claims/${id}/reject`)
 
   return toClaimRequest(response.data)
+}
+
+export async function closeLostItem(id: number): Promise<LostItem> {
+  const response = await api.patch<{ data: LostItem }>(`/lost-items/${id}/close`)
+  return response.data.data
+}
+
+export async function closeFoundItem(id: number): Promise<FoundItem> {
+  const response = await api.patch<{ data: FoundItem }>(`/found-items/${id}/close`)
+  return response.data.data
+}
+
+export async function getMyLostItems(): Promise<PaginatedResponse<LostItem>> {
+  const response = await api.get<PaginatedResponse<LostItem>>('/my/lost-items')
+  return response.data
+}
+
+export async function getMyFoundItems(): Promise<PaginatedResponse<FoundItem>> {
+  const response = await api.get<PaginatedResponse<FoundItem>>('/my/found-items')
+  return response.data
 }

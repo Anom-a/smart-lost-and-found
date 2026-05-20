@@ -15,6 +15,8 @@ class FoundItemController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
+        $status = $request->input('status');
+
         $items = FoundItem::query()
             ->with(['user', 'category'])
             ->when($request->filled('search'), function ($query) use ($request): void {
@@ -25,7 +27,8 @@ class FoundItemController extends Controller
                 });
             })
             ->when($request->filled('category_id'), fn ($query) => $query->where('item_category_id', $request->integer('category_id')))
-            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')->toString()))
+            ->when(!$request->has('status'), fn ($query) => $query->where('status', 'available'))
+            ->when($request->has('status') && $status !== 'all', fn ($query) => $query->where('status', $status))
             ->when($request->filled('date_from'), fn ($query) => $query->whereDate('found_at', '>=', $request->date('date_from')))
             ->when($request->filled('date_to'), fn ($query) => $query->whereDate('found_at', '<=', $request->date('date_to')))
             ->latest()
@@ -37,6 +40,21 @@ class FoundItemController extends Controller
             'total' => $items->total(),
             'last_page' => $items->lastPage(),
         ]);
+    }
+
+    public function close(Request $request, FoundItem $foundItem): JsonResponse
+    {
+        if ($request->user()->id !== $foundItem->user_id) {
+            return $this->errorResponse('You may only close your own found items.', 403);
+        }
+
+        if ($foundItem->status === 'closed') {
+            return $this->errorResponse('The item is already closed.', 422);
+        }
+
+        $foundItem->update(['status' => 'closed']);
+
+        return $this->successResponse('Found item closed.', new FoundItemResource($foundItem->fresh(['user', 'category'])));
     }
 
     public function store(StoreFoundItemRequest $request): JsonResponse
