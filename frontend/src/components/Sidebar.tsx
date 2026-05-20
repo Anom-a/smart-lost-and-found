@@ -12,7 +12,6 @@ const navItems = [
   { to: '/lost-items', label: 'Lost items', icon: Search },
   { to: '/found-items', label: 'Found items', icon: Inbox },
   { to: '/matches', label: 'Matches', icon: Handshake },
-  { to: '/claims', label: 'Claims', icon: ClipboardCheck },
   { to: '/notifications', label: 'Notifications', icon: Bell },
 ]
 
