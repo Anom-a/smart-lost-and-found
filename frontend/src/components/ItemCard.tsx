@@ -1,13 +1,16 @@
 import { format } from 'date-fns'
 import { CalendarDays, MapPin, Phone, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useAuth } from '../hooks/useAuth'
+import { useQueryClient } from '@tanstack/react-query'
+import { CloseItemButton } from './ui/CloseItemButton'
 import type { Item } from '../types/models'
 
 const statusStyles: Record<Item['status'], string> = {
   open: 'bg-[#ffeadf] text-[#842c00]',
   available: 'bg-[#dbe1ff] text-[#003dab]',
   claimed: 'bg-[#ffdad6] text-[#93000a]',
-  closed: 'bg-[#85f8c4] text-[#005137]',
+  closed: 'bg-gray-100 text-gray-800 border border-gray-200 bg-gray-100',
 }
 
 const typeStyles: Record<Item['type'], string> = {
@@ -15,8 +18,24 @@ const typeStyles: Record<Item['type'], string> = {
   found: 'bg-[#dbe1ff] text-[#003dab]',
 }
 
+<<<<<<< HEAD
 export function ItemCard({ item, showViewDetails = true }: { item: Item; showViewDetails?: boolean }) {
+=======
+export function ItemCard({ item }: { item: Item }) {
+  const { user } = useAuth()
+  const queryClient = useQueryClient()
+>>>>>>> 148926a2a362fdbaf6beabd4994bc4365250b9bb
   const detailPath = item.type === 'lost' ? `/lost-items/${item.id}` : `/found-items/${item.id}`
+
+  const handleSuccess = () => {
+    queryClient.invalidateQueries({ queryKey: [item.type === 'lost' ? 'lost-items' : 'found-items'] })
+    queryClient.invalidateQueries({ queryKey: ['my-items'] })
+    queryClient.invalidateQueries({ queryKey: ['my-lost-items'] })
+    queryClient.invalidateQueries({ queryKey: ['my-found-items'] })
+  }
+
+  // Check if owner
+  const isOwner = user && (user.name === item.reportedBy || user.id === (item as any).userId)
 
   return (
     <article className="group overflow-hidden rounded-2xl border border-[#e2e1ed] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]">
