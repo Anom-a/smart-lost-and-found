@@ -18,13 +18,9 @@ const typeStyles: Record<Item['type'], string> = {
   found: 'bg-[#dbe1ff] text-[#003dab]',
 }
 
-<<<<<<< HEAD
 export function ItemCard({ item, showViewDetails = true }: { item: Item; showViewDetails?: boolean }) {
-=======
-export function ItemCard({ item }: { item: Item }) {
   const { user } = useAuth()
   const queryClient = useQueryClient()
->>>>>>> 148926a2a362fdbaf6beabd4994bc4365250b9bb
   const detailPath = item.type === 'lost' ? `/lost-items/${item.id}` : `/found-items/${item.id}`
 
   const handleSuccess = () => {
@@ -86,11 +82,21 @@ export function ItemCard({ item }: { item: Item }) {
           )}
         </dl>
         <p className="mt-4 line-clamp-2 text-sm leading-6 text-[#737686]">{item.description}</p>
-        {showViewDetails && (
-          <Link to={detailPath} className="mt-5 inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">
-            View details
-          </Link>
-        )}
+        <div className="mt-5 flex items-center justify-between gap-3">
+          {showViewDetails && (
+            <Link to={detailPath} className="inline-flex h-10 items-center rounded-lg border border-[#c3c5d7] px-4 text-sm font-semibold text-[#003fb1] transition hover:border-[#003fb1] hover:bg-[#f3f3fe]">
+              View details
+            </Link>
+          )}
+          <CloseItemButton
+            itemId={item.id}
+            itemType={item.type}
+            currentUserId={user?.id}
+            ownerId={isOwner ? user.id : -1}
+            status={item.status}
+            onSuccess={handleSuccess}
+          />
+        </div>
       </div>
     </article>
   )
