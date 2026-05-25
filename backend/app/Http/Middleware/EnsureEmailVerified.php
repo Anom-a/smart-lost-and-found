@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureEmailVerified
 {
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Requst $request, Closure $next): Response
     {
         return $next($request);
     }

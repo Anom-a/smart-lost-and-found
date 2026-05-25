@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { format, formatDistanceToNow } from 'date-fns'
 import {
@@ -32,6 +33,7 @@ import { fetchFoundItems, fetchLostItems } from '../lib/apiData'
 import { useAuth } from '../hooks/useAuth'
 import type { Item, ItemType } from '../types/models'
 import heroImage from '../assets/hero.png'
+import { LanguageSelector } from '../components/LanguageSelector'
 
 const fallbackCategories = ['Electronics', 'IDs', 'Bags', 'Keys', 'Documents', 'Pets']
 
@@ -59,26 +61,10 @@ const statusStyles: Record<Item['status'], string> = {
 }
 
 const processSteps = [
-  {
-    title: 'Report',
-    description: 'Add details and a photo.',
-    icon: ClipboardList,
-  },
-  {
-    title: 'Match',
-    description: 'Compare likely pairs.',
-    icon: PackageSearch,
-  },
-  {
-    title: 'Verify',
-    description: 'Check ownership proof.',
-    icon: ShieldCheck,
-  },
-  {
-    title: 'Reclaim',
-    description: 'Return and close.',
-    icon: Handshake,
-  },
+  { key: 'report', icon: ClipboardList },
+  { key: 'match', icon: PackageSearch },
+  { key: 'verify', icon: ShieldCheck },
+  { key: 'reclaim', icon: Handshake },
 ]
 
 function itemMatches(item: Item, search: string, category: string, feedType: ItemType) {
@@ -157,6 +143,7 @@ function LandingItemCard({ item }: { item: Item }) {
 }
 
 export function HomePage() {
+  const { t } = useTranslation()
   const [feedType, setFeedType] = useState<ItemType>('found')
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
@@ -179,20 +166,23 @@ export function HomePage() {
     <main className="min-h-screen bg-[#f7f4ee] text-[#191b23]">
       <header className="sticky top-0 z-30 border-b border-black/10 bg-[#f7f4ee]/90 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link to="/" className="text-lg font-bold text-[#0d4237]">
-            FoundTrust
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link to="/" className="text-lg font-bold text-[#0d4237]">
+              FoundTrust
+            </Link>
+            <LanguageSelector />
+          </div>
           <nav className="hidden items-center gap-8 text-sm font-medium text-[#3f4845] md:flex">
-            <a href="#feed" className="hover:text-[#0d4237]">Items</a>
-            <a href="#process" className="hover:text-[#0d4237]">Steps</a>
-            <a href="#trust" className="hover:text-[#0d4237]">Safety</a>
+            <a href="#feed" className="hover:text-[#0d4237]">{t('nav.items')}</a>
+            <a href="#process" className="hover:text-[#0d4237]">{t('nav.steps')}</a>
+            <a href="#trust" className="hover:text-[#0d4237]">{t('nav.safety')}</a>
           </nav>
           <div className="hidden items-center gap-3 md:flex">
             <Link to={isAuthenticated ? '/dashboard' : '/login'} className="text-sm font-semibold text-[#3f4845] hover:text-[#0d4237]">
-              {isAuthenticated ? 'Dashboard' : 'Sign in'}
+              {isAuthenticated ? 'Dashboard' : t('login')}
             </Link>
             <Link to="/lost-items/new" className="inline-flex h-11 items-center justify-center rounded-full bg-[#0d4237] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(13,66,55,0.22)] hover:bg-[#145c4d]">
-              Report item
+              {t('hero.report')}
             </Link>
           </div>
           <button
@@ -221,18 +211,18 @@ export function HomePage() {
           <div className="flex flex-col justify-center">
             <p className="inline-flex w-fit items-center gap-2 rounded-full border border-[#cdd8d4] bg-white/70 px-3 py-1 text-sm font-semibold text-[#0d4237] shadow-[0_8px_22px_rgba(38,52,48,0.08)]">
               <ShieldCheck className="h-4 w-4" />
-              Smart lost and found
+              {t('hero.pretitle')}
             </p>
             <h1 className="mt-6 max-w-3xl text-4xl font-bold leading-[1.05] text-[#13201c] sm:text-5xl lg:text-6xl">
-              Find lost items faster.
+              {t('hero.title')}
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-7 text-[#4d5753]">
-              Report, match, and return belongings with a cleaner community workflow.
+              {t('hero.subtitle')}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link to="/lost-items/new" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#0d4237] px-6 text-sm font-semibold text-white shadow-[0_14px_32px_rgba(13,66,55,0.24)] hover:bg-[#145c4d]">
                 <PackageSearch className="h-4 w-4" />
-                Report lost item
+                {t('hero.report')}
               </Link>
               <a
                 href="#feed"
@@ -240,7 +230,7 @@ export function HomePage() {
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[#bccac6] bg-white px-6 text-sm font-semibold text-[#0d4237] hover:border-[#0d4237]"
               >
                 <Search className="h-4 w-4" />
-                Browse items
+                {t('hero.browse')}
               </a>
             </div>
 
@@ -256,7 +246,7 @@ export function HomePage() {
                 <input
                   value={search}
                   onChange={(event) => setSearch(event.target.value)}
-                  placeholder="What did you lose?"
+                  placeholder={t('search.placeholder')}
                   className="w-full bg-transparent text-sm text-[#191b23] outline-none placeholder:text-[#6d7672]"
                 />
               </label>
@@ -270,7 +260,7 @@ export function HomePage() {
                 </select>
               </label>
               <button type="submit" className="inline-flex h-12 items-center justify-center rounded-xl bg-[#0d4237] px-6 text-sm font-semibold text-white hover:bg-[#145c4d]">
-                Search
+                {t('search.button')}
               </button>
             </form>
           </div>
@@ -296,23 +286,23 @@ export function HomePage() {
             </div>
             <div className="absolute right-6 top-10 flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-[#0d4237] shadow-[0_14px_34px_rgba(28,38,33,0.16)]">
               <Sparkles className="h-4 w-4" />
-              {activeReports} active
+                {activeReports} {t('active.label')}
             </div>
             <div className="absolute bottom-10 right-10 rounded-2xl bg-[#f4c66a] px-5 py-4 text-[#13201c] shadow-[0_16px_36px_rgba(28,38,33,0.18)]">
               <p className="text-2xl font-bold">{returnedCount || 'New'}</p>
-              <p className="text-xs font-semibold uppercase">returned</p>
+              <p className="text-xs font-semibold uppercase">{t('returned.label')}</p>
             </div>
           </div>
         </div>
         <div className="mx-auto grid max-w-[1280px] gap-3 px-4 pb-12 sm:grid-cols-3 sm:px-6 lg:px-8">
           {[
-            ['Report', 'Add photo and place'],
-            ['Match', 'Spot likely finds'],
-            ['Return', 'Close the loop'],
-          ].map(([title, label]) => (
-            <div key={title} className="rounded-2xl border border-[#e0d9cb] bg-white/70 p-4">
-              <p className="font-semibold text-[#13201c]">{title}</p>
-              <p className="mt-1 text-sm text-[#5d6762]">{label}</p>
+            ['cards.report', 'cards.report.desc'],
+            ['cards.match', 'cards.match.desc'],
+            ['cards.return', 'cards.return.desc'],
+          ].map(([titleKey, labelKey]) => (
+            <div key={titleKey} className="rounded-2xl border border-[#e0d9cb] bg-white/70 p-4">
+              <p className="font-semibold text-[#13201c]">{t(titleKey)}</p>
+              <p className="mt-1 text-sm text-[#5d6762]">{t(labelKey)}</p>
             </div>
           ))}
         </div>
@@ -321,8 +311,8 @@ export function HomePage() {
       <section id="feed" className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <p className="text-sm font-semibold uppercase text-[#0d4237]">Live feed</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[#13201c]">Recent community reports</h2>
+            <p className="text-sm font-semibold uppercase text-[#0d4237]">{t('liveFeed.label')}</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[#13201c]">{t('liveFeed.title')}</h2>
           </div>
           <div className="flex w-fit rounded-full border border-[#d7d0c2] bg-white p-1">
             {(['found', 'lost'] as ItemType[]).map((type) => (
@@ -383,24 +373,24 @@ export function HomePage() {
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-2xl font-semibold text-[#13201c]">How it works</h2>
           </div>
-          <div className="mt-10 grid gap-5 lg:grid-cols-4">
+            <div className="grid gap-5 lg:grid-cols-4">
             {processSteps.map((step, index) => {
               const Icon = step.icon
               const selected = activeStep === index
 
               return (
                 <button
-                  key={step.title}
+                  key={step.key}
                   type="button"
                   onClick={() => setActiveStep(index)}
-                  className={`rounded-2xl border p-6 text-left transition hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(39,43,38,0.1)] ${selected ? 'border-[#0d4237] bg-[#eef6f2]' : 'border-[#d7d0c2] bg-white'}`}
-                >
+                  className={`rounded-2xl border p-6 text-left transition hover:-translate-y-1 hover:shadow-[0_14px_30px_rgba(39,43,38,0.1)] ${selected ? 'border-[#0d4237] bg-[#eef6f2]' : 'border-[#d7d0c2] bg-white'}`}>
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[#0d4237] text-white">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <p className="mt-5 text-sm font-semibold text-[#6d7672]">Step {index + 1}</p>
-                  <h3 className="mt-1 text-lg font-semibold text-[#13201c]">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#4d5753]">{step.description}</p>
+                  <div className="mt-6">
+                    <p className="text-lg font-semibold text-[#13201c]">{t(`process.step.${step.key}.title`)}</p>
+                    <p className="mt-1 text-sm text-[#5d6762]">{t(`process.step.${step.key}.desc`)}</p>
+                  </div>
                 </button>
               )
             })}
@@ -453,7 +443,7 @@ export function HomePage() {
             <a
               href="#feed"
               onClick={() => setFeedType('found')}
-              className="inline-flex h-12 items-center justify-center rounded-full border border-[#13201c] px-6 text-sm font-semibold text-[#13201c] hover:bg-white/30"
+              className="inline-flex h-12 items-center justify-center rounded-full border border-[#13201c] px-6 text-sm font-semibold text-[#13201c] hover:bg-[#fff4cf]"
             >
               Search items
             </a>
